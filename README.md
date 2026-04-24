@@ -1,8 +1,7 @@
 # Gestion de stock
-Application de gestion de stock en CLI
+Application de gestion de stock en CLI (v1.0)
 
 ## Description
-Version V1.0
 Application de gestion simple d'un stock de produits (lister les produits, les alertes et l'inventaire, gérer l'ajout et la modification des produits) avec une architecture modulaire (séparation de la gestion métier, des données et des interactions avec l'utilisateur) et une sauvegarde des données dans un fichier stock.json.
 
 ## Structure du projet
@@ -20,7 +19,7 @@ GestionDeStock/
 ```
 
 ## Format des données
-Liste de dictionnaires
+Les données sont stockées sous forme d'une liste de dictionnaires :
 ```text
 [
     {
@@ -33,10 +32,10 @@ Liste de dictionnaires
 ```
 
 ## Technologies utilisées
-Python 3.10 ou supérieur
-Développé et testé avec Python 3.14
-JSON pour le stockage permanent et la portabilité des données
-Aucune dépendance externe (librairie standard Python uniquement)
+- Python 3.10 ou supérieur
+- Développé et testé avec Python 3.14
+- JSON pour le stockage permanent et la portabilité des données
+- Aucune dépendance externe (librairie standard Python uniquement)
 
 ## Fonctionnalités
 - Affichage du stock
@@ -88,11 +87,12 @@ python -m venv .venv
 ```
 
 ### Activation de l'environnement virtuel selon l'OS
+**Windows**
 ```bash
-Windows :
 .\.venv\Scripts\Activate.ps1
-
-Mac / Linux :
+```
+**Mac / Linux**
+```bash
 source .venv/bin/activate
 ```
 
