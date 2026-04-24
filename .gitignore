@@ -1,0 +1,12 @@
+# Environnement virtuel
+.venv/
+
+# Dossier éditeur
+.vscode/
+
+# Fichiers Python compilés
+__pycache__/
+*.pyc
+
+# Données locales
+stock.json
