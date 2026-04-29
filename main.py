@@ -6,12 +6,13 @@ import gestion_stock as gs
 import donnees
 
 def main():
-    retour = donnees.charger_stock()
-    code_err = retour[0]
-    stock = retour[1]
+    code_err, stock, anomalies_fichier = donnees.charger_stock()
 
     if code_err != const.NO_ERR:
         ifc.afficher_erreur(code_err)
+    
+    if anomalies_fichier:
+        ifc.afficher_anomalies_fichier(anomalies_fichier)
 
     continuer = True
     while continuer:

@@ -17,23 +17,31 @@ ERR_FILE_NOT_FOUND = 1
 ERR_JSON_DECODE_ERROR = 2
 ERR_MSG_FICHIER_STOCK_ABSENT = (
     "\nLe fichier stock.json n'existe pas. Il sera créé à l'ajout du "
-    "premier produit"
+    "premier produit."
 )
 ERR_MSG_FICHIER_STOCK_ENDOMMAGE = (
-    "\nImpossible de lire le fichier stock.json (fichier endommagé)."
+    "\nImpossible de lire le fichier '{0}' (fichier endommagé).".format(
+        FICHIER_STOCK
+    )
 )
 ERR_MSG_NOUVEAU_FICHIER_STOCK = (
-    "Un nouveau fichier stock.json sera créé et remplacera l'existant à "
-    "l'ajout du premier produit."
+    "Un nouveau fichier '{0}' sera créé et remplacera l'existant à "
+    "l'ajout du premier produit.".format(
+        FICHIER_STOCK
+    )
 )
 ERR_MSG_SAUVER_FICHIER_STOCK_ENDOMMAGE = (
-    "Si vous voulez garder votre fichier stock.json, sauvegardez-le "
-    "ailleurs ou renommez-le avant de continuer."
+    "Si vous voulez garder votre fichier '{0}', sauvegardez-le "
+    "ailleurs ou renommez-le avant de continuer.".format(FICHIER_STOCK)
 )
 
 #Aide à la navigation
-NAV_MSG_TOUCHE_ENTREE_RETOUR_MENU = "\n('Entrée' pour revenir au menu principal) "
-NAV_MSG_VIDE_RETOUR_MENU = "('Nom à vide + Entrée' pour revenir au menu principal)"
+NAV_MSG_TOUCHE_ENTREE_RETOUR_MENU = (
+    "\n('Entrée' pour revenir au menu principal) "
+)
+NAV_MSG_VIDE_RETOUR_MENU = (
+    "('Nom à vide + Entrée' pour revenir au menu principal)"
+)
 NAV_MSG_ENTREE_POUR_CONTINUER = "\n(Appuyer sur 'Entrée' pour continuer)"
 
 #Messages de contrôle
@@ -105,7 +113,7 @@ INFO_VALEUR_ACTU = "\tModification de "
 INFO_PRODUIT_AJOUTE = "\tAjout de '{0}'"
 INFO_STOCK_VIDE = (
     "Aucun produit enregistré.\nPour ajouter un produit aller dans "
-    "le menu 'Ajouter / modifier un produit'"
+    "le menu 'Ajouter / modifier un produit'."
 )
 INFO_PROD_AJOUTE = "Le produit a été ajouté"
 INFO_PROD_MODIFIE = "Le produit a été modifié"
@@ -113,3 +121,27 @@ INFO_PROD_NON_TROUVE = "\nProduit introuvable"
 INFO_PROD_SUPPRIME = "\nLe produit '{0}' a été supprimé"
 INFO_AUCUNE_ALERTE = "\nStock OK, rien à recharger"
 INFO_PROD_RENOMME = "\nLe produit '{0}' a été renommé en '{1}'"
+
+#Gestion des anomalies dans le fichier de données
+ANO_LISTE = (
+    "\nATTENTION : des anomalies existent dans le fichier {0} :\n".format(
+        FICHIER_STOCK
+    )
+)
+ANO_MSG_NOUVEAU_FICHIER_STOCK = (
+    "\nUn nouveau fichier '{0}' sera créé et remplacera l'existant à l'ajout, "
+    "modification ou suppression d'un produit.".format(FICHIER_STOCK)
+)
+NO_ANO = "Produit OK"
+ANO_NOM_INEXISTANTE = "Pas de champ '{0}'".format(CLE_NOM)
+ANO_NOM_PAS_STR = (
+    "Le champ '{0}' n'est pas une chaîne de caractères".format(CLE_NOM)
+)
+ANO_NOM_VIDE = "Le champ '{0}' est vide".format(CLE_NOM)
+ANO_NOM_TROP_LONG = (
+    "Le champ '{0}' dépasse {1} caractères, il sera tronqué".format(
+        CLE_NOM,
+        LARGEUR_COL
+    )
+)
+ANO_NO_PRODUIT = "Produit n°{0} : "

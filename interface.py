@@ -206,3 +206,11 @@ def afficher_erreur(code_err: int)-> None:
             print(const.ERR_MSG_NOUVEAU_FICHIER_STOCK)
             print(const.ERR_MSG_SAUVER_FICHIER_STOCK_ENDOMMAGE)
     input(const.NAV_MSG_ENTREE_POUR_CONTINUER)
+
+def afficher_anomalies_fichier(anomalies: list[str])-> None:
+    print(const.ANO_LISTE)
+    for anomalie in anomalies:
+        print(anomalie)
+    print(const.ANO_MSG_NOUVEAU_FICHIER_STOCK)
+    print(const.ERR_MSG_SAUVER_FICHIER_STOCK_ENDOMMAGE)
+    input(const.NAV_MSG_ENTREE_POUR_CONTINUER)
