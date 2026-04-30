@@ -123,6 +123,8 @@ INFO_AUCUNE_ALERTE = "\nStock OK, rien à recharger"
 INFO_PROD_RENOMME = "\nLe produit '{0}' a été renommé en '{1}'"
 
 #Gestion des anomalies dans le fichier de données
+ANO_ENTIER = "int"
+ANO_FLOTTANT = "float"
 ANO_LISTE = (
     "\nATTENTION : des anomalies existent dans le fichier {0} :\n".format(
         FICHIER_STOCK
@@ -133,15 +135,21 @@ ANO_MSG_NOUVEAU_FICHIER_STOCK = (
     "modification ou suppression d'un produit.".format(FICHIER_STOCK)
 )
 NO_ANO = "Produit OK"
-ANO_NOM_INEXISTANTE = "Pas de champ '{0}'".format(CLE_NOM)
-ANO_NOM_PAS_STR = (
-    "Le champ '{0}' n'est pas une chaîne de caractères".format(CLE_NOM)
+ANO_NOM_INEXISTANTE = "Pas de champ '{0}', le produit sera ignoré".format(CLE_NOM)
+ANO_CHAMP_PAS_STR = (
+    "Le champ '{0}' n'est pas une chaîne de caractères, "
+    "le produit sera ignoré"
 )
-ANO_NOM_VIDE = "Le champ '{0}' est vide".format(CLE_NOM)
-ANO_NOM_TROP_LONG = (
-    "Le champ '{0}' dépasse {1} caractères, il sera tronqué".format(
-        CLE_NOM,
-        LARGEUR_COL
-    )
-)
+ANO_CHAMP_TROP_LONG = "Le champ '{0}' dépasse {1} caractères, il sera tronqué"
+ANO_CHAMP_VIDE = "Le champ '{0}' est vide"
 ANO_NO_PRODUIT = "Produit n°{0} : "
+ANO_CHAMP_NUM_CONV_ENTIER_OU_FLOTTANT = "Le champ '{0}' a été converti en '{1}'"
+ANO_CHAMP_NUM_CONV_VAL = (
+    "Le champ '{0}' a été converti en nombre avec la valeur '{1}'"
+)
+ANO_CHAMP_NUM_CONV_ZERO = (
+    "Le champ '{0}' a été converti en nombre avec une valeur à 0"
+)
+ANO_CHAMP_NUM_INEXISTANT = (
+    "Le champ '{0}' n'existe pas et a été créé avec une valeur à 0"
+)
