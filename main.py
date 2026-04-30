@@ -17,20 +17,7 @@ def main():
     continuer = True
     while continuer:
         ifc.effacer_ecran_terminal()
-        print(f"{const.TITRE_MENU_PRINCIPAL:^{const.LARGEUR_CADRE}}\n")
-        print(const.MENUP_SM_STOCK)
-        print(const.MENUP_SM_ALERTES)
-        print(const.MENUP_SM_AJOUT_MODIF)
-        print(const.MENUP_SM_SUPPRESSION)
-        print(const.MENUP_SM_RECHERCHE)
-        print(const.MENUP_SM_RENOMMAGE)
-        print(const.MENUP_SM_INVENTAIRE)
-        print(const.MENUP_SM_QUITTER)
-
-        choix = input(const.MENUP_CHOIX)
-
-        while choix not in const.LISTE_CHOIX:
-            choix = input(const.MENUP_REPETER_CHOIX)
+        choix = ifc.demander_choix_menu()
 
         ifc.effacer_ecran_terminal()
         match choix.capitalize():

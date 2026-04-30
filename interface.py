@@ -214,3 +214,23 @@ def afficher_anomalies_fichier(anomalies: list[str])-> None:
     print(const.ANO_MSG_NOUVEAU_FICHIER_STOCK)
     print(const.ERR_MSG_SAUVER_FICHIER_STOCK_ENDOMMAGE)
     input(const.NAV_MSG_ENTREE_POUR_CONTINUER)
+
+def demander_choix_menu()-> str:
+    """Affiche le menu principal et renvoie le choix de l'utilisateur"""
+
+    print(f"{const.TITRE_MENU_PRINCIPAL:^{const.LARGEUR_CADRE}}\n")
+    print(const.MENUP_SM_STOCK)
+    print(const.MENUP_SM_ALERTES)
+    print(const.MENUP_SM_AJOUT_MODIF)
+    print(const.MENUP_SM_SUPPRESSION)
+    print(const.MENUP_SM_RECHERCHE)
+    print(const.MENUP_SM_RENOMMAGE)
+    print(const.MENUP_SM_INVENTAIRE)
+    print(const.MENUP_SM_QUITTER)
+
+    choix = input(const.MENUP_CHOIX)
+
+    while choix not in const.LISTE_CHOIX:
+        choix = input(const.MENUP_REPETER_CHOIX)
+    
+    return choix
