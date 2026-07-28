@@ -82,11 +82,11 @@ def _gerer_recherche(stock: list[types_structure.Produit]) -> None:
 
         if not stock:
             ifc.afficher_recherche_impossible()
-            break
+            return None
 
         nom_recherche = ifc.demander_nom_produit(LBL_NOM_PRODUIT)
         if nom_recherche is None:
-            break
+            return None
         
         produit = gs.trouver_produit(stock, nom_recherche)
         if produit is not None:
