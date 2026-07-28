@@ -16,21 +16,20 @@ def _gerer_ajout_modification(
     while True:
         ifc.afficher_entete_ajout_modification()
 
-        resultat_sauvegarde = donnees.ResultatSauvegardeFichier.ANNULATION
-
         nom_produit = ifc.demander_nom_produit(LBL_NOM_PRODUIT)
         if nom_produit is None:
-            break
+            return donnees.ResultatSauvegardeFichier.ANNULATION
         
         produit = gs.trouver_produit(stock, nom_produit)
         if produit is None:
             donnees_produit = ifc.demander_info_produit(None, nom_produit)
             if donnees_produit is None:
-                break
+                return donnees.ResultatSauvegardeFichier.ANNULATION
+
             gs.ajouter_produit(stock, nom_produit, **donnees_produit)
             resultat_sauvegarde = donnees.sauvegarder_stock(stock)
-            if resultat_sauvegarde is donnees.ResultatSauvegardeFichier.ACCES_FICHIER_REFUSE:
-                break
+            if resultat_sauvegarde is not donnees.ResultatSauvegardeFichier.SUCCES:
+                return resultat_sauvegarde
 
             ifc.afficher_produit_ajoute(nom_produit)
             continue
@@ -38,14 +37,14 @@ def _gerer_ajout_modification(
 
         donnees_produit = ifc.demander_info_produit(produit)
         if donnees_produit is None:
-            break
+            return donnees.ResultatSauvegardeFichier.ANNULATION
+
         gs.modifier_produit(produit, **donnees_produit)
         resultat_sauvegarde = donnees.sauvegarder_stock(stock)
-        if resultat_sauvegarde is donnees.ResultatSauvegardeFichier.ACCES_FICHIER_REFUSE:
-            break
+        if resultat_sauvegarde is not donnees.ResultatSauvegardeFichier.SUCCES:
+            return resultat_sauvegarde
+
         ifc.afficher_produit_modifie(nom_produit)
-    
-    return resultat_sauvegarde
 
 
 def _gerer_suppression(
@@ -54,15 +53,13 @@ def _gerer_suppression(
     while True:
         ifc.afficher_entete_suppression()
 
-        resultat_sauvegarde = donnees.ResultatSauvegardeFichier.ANNULATION
-
         if not stock:
             ifc.afficher_suppression_impossible()
-            break
+            return donnees.ResultatSauvegardeFichier.ANNULATION
 
         nom_produit = ifc.demander_nom_produit(LBL_NOM_PRODUIT)
         if nom_produit is None:
-            break
+            return donnees.ResultatSauvegardeFichier.ANNULATION
         
         produit = gs.trouver_produit(stock, nom_produit)
         if produit is None:
@@ -73,12 +70,10 @@ def _gerer_suppression(
         if ifc.demander_confirmation_suppression(nom_produit_a_supprimer):
             gs.supprimer_produit(stock, produit)
             resultat_sauvegarde = donnees.sauvegarder_stock(stock)
-            if resultat_sauvegarde is donnees.ResultatSauvegardeFichier.ACCES_FICHIER_REFUSE:
-                break
+            if resultat_sauvegarde is not donnees.ResultatSauvegardeFichier.SUCCES:
+                return resultat_sauvegarde
 
             ifc.afficher_produit_supprime(nom_produit_a_supprimer)
-    
-    return resultat_sauvegarde
 
 
 def _gerer_recherche(stock: list[types_structure.Produit]) -> None:
@@ -112,47 +107,37 @@ def _gerer_renommage(
     while True:
         ifc.afficher_entete_renommage()
 
-        resultat_sauvegarde = donnees.ResultatSauvegardeFichier.ANNULATION
-
         if not stock:
             ifc.afficher_renommage_impossible()
-            break
+            return donnees.ResultatSauvegardeFichier.ANNULATION
 
         nom_produit = ifc.demander_nom_produit(LBL_NOM_PRODUIT)
         if nom_produit is None:
-            break
+            return donnees.ResultatSauvegardeFichier.ANNULATION
         
         produit = gs.trouver_produit(stock, nom_produit)
         if produit is None:
             ifc.afficher_produit_non_trouve(nom_produit)
             continue
 
-        retour_menu_principal = False
         while True:
             ancien_nom = produit[CLE_NOM]
             nouveau_nom = ifc.demander_nouveau_nom_produit(ancien_nom)
             if nouveau_nom is None:
-                retour_menu_principal = True
-                break
+                return donnees.ResultatSauvegardeFichier.ANNULATION
                 
             if gs.verifier_nom_disponible(
                 stock, produit[CLE_NOM], nouveau_nom
             ):
                 gs.renommer_produit(produit, nouveau_nom)
                 resultat_sauvegarde = donnees.sauvegarder_stock(stock)
-                if resultat_sauvegarde is donnees.ResultatSauvegardeFichier.ACCES_FICHIER_REFUSE:
-                    retour_menu_principal = True
-                    break
+                if resultat_sauvegarde is not donnees.ResultatSauvegardeFichier.SUCCES:
+                    return resultat_sauvegarde
 
                 ifc.afficher_produit_renomme(ancien_nom, nouveau_nom)
                 break
                 
             ifc.afficher_produit_existe(nouveau_nom)
-        
-        if retour_menu_principal:
-            break
-    
-    return resultat_sauvegarde
 
 
 def main():
