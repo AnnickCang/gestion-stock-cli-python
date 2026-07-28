@@ -518,7 +518,6 @@ def afficher_erreur_fichier(
             _afficher_lignes_vides()
             print(const.ERR_MSG_SAUVEGARDE_ECHOUEE)
             print(const.ERR_MSG_PERMISSION_REFUSEE)
-            print(const.ERR_ARRET_PROGRAMME)
     _attendre_touche_entree_avec_message()
 
 
