@@ -513,11 +513,19 @@ def afficher_erreur_fichier(
             print(const.ERR_MSG_SAUVER_FICHIER_STOCK_ENDOMMAGE)
         case ResultatChargementFichier.ACCES_FICHIER_REFUSE:
             print(const.ERR_MSG_PERMISSION_REFUSEE)
-            print(const.ERR_ARRET_PROGRAMME)
+            print(const.ERR_MSG_ARRET_PROGRAMME)
         case ResultatSauvegardeFichier.ACCES_FICHIER_REFUSE:
             _afficher_lignes_vides()
             print(const.ERR_MSG_SAUVEGARDE_ECHOUEE)
             print(const.ERR_MSG_PERMISSION_REFUSEE)
+        case ResultatSauvegardeFichier.ERREUR_ECRITURE:
+            _afficher_lignes_vides()
+            print(const.ERR_MSG_SAUVEGARDE_ECHOUEE)
+            print(const.ERR_MSG_ERREUR_ECRITURE)
+        case ResultatSauvegardeFichier.DONNEES_NON_SERIALISABLES:
+            _afficher_lignes_vides()
+            print(const.ERR_MSG_SAUVEGARDE_ECHOUEE)
+            print(const.ERR_MSG_DONNEES_NON_SERIALISABLES)
     _attendre_touche_entree_avec_message()
 
 

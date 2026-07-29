@@ -42,7 +42,15 @@ ERR_MSG_PERMISSION_REFUSEE = (
 ERR_MSG_SAUVEGARDE_ECHOUEE = (
     "La sauvegarde du stock a échoué. La dernière modification n'a pas été prise en compte."
 )
-ERR_ARRET_PROGRAMME = "Le programme va s'arrêter."
+ERR_MSG_ERREUR_ECRITURE = (
+    "Une erreur est survenue lors de l'écriture du fichier stock.json. Vérifiez que "
+    "le support de stockage est accessible et qu'il dispose de suffisamment d'espace libre."
+)
+ERR_MSG_DONNEES_NON_SERIALISABLES = (
+    "Une erreur interne est survenue lors de l'écriture du fichier stock.json. "
+    "Les données ne peuvent pas être converties au format JSON."
+)
+ERR_MSG_ARRET_PROGRAMME = "Le programme va s'arrêter."
 
 # Aide à la navigation
 NAV_MSG_ENTREE_POUR_CONTINUER = "\n(Appuyer sur 'Entrée' pour continuer)"
