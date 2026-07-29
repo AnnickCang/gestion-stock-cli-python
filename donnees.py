@@ -1,4 +1,5 @@
 import json
+import errno
 from enum import Enum, unique, auto
 from typing import NamedTuple
 
@@ -27,6 +28,14 @@ class ResultatChargementStock(NamedTuple):
     resultat_chargement: ResultatChargementFichier
     stock: list[ts.Produit]
     warnings: list[str]
+
+
+ERREURS_ECRITURE_PREVISIBLES = {
+    errno.ENOSPC,
+    errno.EIO,
+    errno.EROFS,
+    errno.EFBIG
+}
 
 
 CLE_NOM = const.CLE_NOM
@@ -331,3 +340,9 @@ def sauvegarder_stock(stock: list[ts.Produit]) -> ResultatSauvegardeFichier:
         return ResultatSauvegardeFichier.SUCCES
     except PermissionError:
         return ResultatSauvegardeFichier.ACCES_FICHIER_REFUSE
+    except OSError as erreur:
+        if erreur.errno in ERREURS_ECRITURE_PREVISIBLES:
+            return ResultatSauvegardeFichier.ERREUR_ECRITURE
+        raise
+    except TypeError:
+        return ResultatSauvegardeFichier.DONNEES_NON_SERIALISABLES
