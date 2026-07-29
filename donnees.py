@@ -1,5 +1,6 @@
 import json
 import errno
+import os
 from enum import Enum, unique, auto
 from typing import NamedTuple
 
@@ -335,8 +336,9 @@ def sauvegarder_stock(stock: list[ts.Produit]) -> ResultatSauvegardeFichier:
     """Sauvegarde le stock trié par nom et renvoie le résultat de la sauvegarde"""
     trier_stock(stock)
     try:
-        with open(const.FICHIER_STOCK, "w", encoding="utf-8") as f:
+        with open(const.FICHIER_STOCK_TEMP, "w", encoding="utf-8") as f:
             json.dump(stock, f, indent=4, ensure_ascii=False)
+        os.replace(const.FICHIER_STOCK_TEMP, const.FICHIER_STOCK)
         return ResultatSauvegardeFichier.SUCCES
     except PermissionError:
         return ResultatSauvegardeFichier.ACCES_FICHIER_REFUSE

@@ -1,5 +1,6 @@
 # Fichiers du programme
 FICHIER_STOCK = "stock.json"
+FICHIER_STOCK_TEMP = "stock.tmp"
 
 # Clés du type Produit
 CLE_NOM = "nom"
