@@ -20,6 +20,8 @@ class ResultatSauvegardeFichier(Enum):
     SUCCES = auto()
     ANNULATION = auto()
     ACCES_FICHIER_REFUSE = auto()
+    ERREUR_ECRITURE = auto()
+    DONNEES_NON_SERIALISABLES = auto()
 
 class ResultatChargementStock(NamedTuple):
     resultat_chargement: ResultatChargementFichier
