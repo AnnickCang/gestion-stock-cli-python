@@ -45,6 +45,13 @@ CLE_SEUIL = const.CLE_SEUIL
 CLE_PRIX = const.CLE_PRIX
 
 
+def _supprimer_fichier_temp() -> None:
+    try:
+        os.remove(const.FICHIER_STOCK_TEMP)
+    except OSError:
+        pass
+
+
 def _verifier_structure_stock(stock: object) -> ResultatChargementFichier:
     """Renvoie un code indiquant si la structure est valide ou pas"""
     if not isinstance(stock, list):
@@ -341,10 +348,13 @@ def sauvegarder_stock(stock: list[ts.Produit]) -> ResultatSauvegardeFichier:
         os.replace(const.FICHIER_STOCK_TEMP, const.FICHIER_STOCK)
         return ResultatSauvegardeFichier.SUCCES
     except PermissionError:
+        _supprimer_fichier_temp()
         return ResultatSauvegardeFichier.ACCES_FICHIER_REFUSE
     except OSError as erreur:
+        _supprimer_fichier_temp()
         if erreur.errno in ERREURS_ECRITURE_PREVISIBLES:
             return ResultatSauvegardeFichier.ERREUR_ECRITURE
         raise
     except TypeError:
+        _supprimer_fichier_temp()
         return ResultatSauvegardeFichier.DONNEES_NON_SERIALISABLES
