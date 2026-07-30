@@ -1,5 +1,6 @@
 import json
 import errno
+import os
 from enum import Enum, unique, auto
 from typing import NamedTuple
 
@@ -42,6 +43,13 @@ CLE_NOM = const.CLE_NOM
 CLE_QUANTITE = const.CLE_QUANTITE
 CLE_SEUIL = const.CLE_SEUIL
 CLE_PRIX = const.CLE_PRIX
+
+
+def _supprimer_fichier_temp() -> None:
+    try:
+        os.remove(const.FICHIER_STOCK_TEMP)
+    except OSError:
+        pass
 
 
 def _verifier_structure_stock(stock: object) -> ResultatChargementFichier:
@@ -335,14 +343,18 @@ def sauvegarder_stock(stock: list[ts.Produit]) -> ResultatSauvegardeFichier:
     """Sauvegarde le stock trié par nom et renvoie le résultat de la sauvegarde"""
     trier_stock(stock)
     try:
-        with open(const.FICHIER_STOCK, "w", encoding="utf-8") as f:
+        with open(const.FICHIER_STOCK_TEMP, "w", encoding="utf-8") as f:
             json.dump(stock, f, indent=4, ensure_ascii=False)
+        os.replace(const.FICHIER_STOCK_TEMP, const.FICHIER_STOCK)
         return ResultatSauvegardeFichier.SUCCES
     except PermissionError:
+        _supprimer_fichier_temp()
         return ResultatSauvegardeFichier.ACCES_FICHIER_REFUSE
     except OSError as erreur:
+        _supprimer_fichier_temp()
         if erreur.errno in ERREURS_ECRITURE_PREVISIBLES:
             return ResultatSauvegardeFichier.ERREUR_ECRITURE
         raise
     except TypeError:
+        _supprimer_fichier_temp()
         return ResultatSauvegardeFichier.DONNEES_NON_SERIALISABLES
