@@ -1,5 +1,6 @@
 from typing import TypedDict
 from typing import NamedTuple
+from dataclasses import dataclass
 
 
 class Produit(TypedDict):
@@ -50,3 +51,11 @@ class ProduitExtraitValideAvecWarnings(NamedTuple):
 class StockExtraitValideAvecWarnings(NamedTuple):
     stock: list[Produit]
     warnings: list[str]
+
+
+@dataclass
+class ProduitAvecAnomalies:
+    numero: int
+    produit_original: object
+    anomalies: list[str]
+    produit_nettoye: Produit | None
