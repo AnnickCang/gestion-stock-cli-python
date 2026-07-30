@@ -28,7 +28,7 @@ class ResultatSauvegardeFichier(Enum):
 class ResultatChargementStock(NamedTuple):
     resultat_chargement: ResultatChargementFichier
     stock: list[ts.Produit]
-    warnings: list[str]
+    produits_avec_anomalies: list[ts.ProduitAvecAnomalies]
 
 
 ERREURS_ECRITURE_PREVISIBLES = {
@@ -262,12 +262,12 @@ def _extraire_produit_valide(
 
 def _extraire_stock_valide(
     stock: list[object]
-) -> ts.StockExtraitValideAvecWarnings:
+) -> ts.ResultatExtractionStock:
     """Renvoie un stock avec des produits vérifiés, nettoyés et sans doublons
     et éventuellement les anomalies associées"""
 
     stock_nettoye: list[ts.Produit] = []
-    anomalies: list[str] = []
+    produits_avec_anomalies: list[ts.ProduitAvecAnomalies] = []
     cles_noms_deja_vus: set[str] = set()
 
     for no_produit, produit in enumerate(stock, start=1):
@@ -278,15 +278,22 @@ def _extraire_stock_valide(
             if nom_normalise in cles_noms_deja_vus:
                 msg_anomalie = const.ANO_NOM_DOUBLON.format(produit_nettoye[CLE_NOM])
                 msgs_anomalies.append(msg_anomalie)
+                produit_nettoye = None
             else:
                 cles_noms_deja_vus.add(nom_normalise)
                 stock_nettoye.append(produit_nettoye)
-        
-        for anomalie in msgs_anomalies:
-            txt_anomalie = const.ANO_NO_PRODUIT.format(no_produit)
-            anomalies.append(txt_anomalie + anomalie)
-    
-    return ts.StockExtraitValideAvecWarnings(stock_nettoye, anomalies)
+
+        if msgs_anomalies:
+            produits_avec_anomalies.append(
+                ts.ProduitAvecAnomalies(
+                    numero=no_produit,
+                    produit_original=produit,
+                    anomalies=msgs_anomalies,
+                    produit_nettoye=produit_nettoye
+                )
+            )
+
+    return ts.ResultatExtractionStock(stock_nettoye, produits_avec_anomalies)
 
 
 def trier_stock(stock: list[ts.Produit]) -> None:
@@ -309,14 +316,14 @@ def charger_stock() -> ResultatChargementStock:
                     []
                 )
 
-            stock_nettoye, anomalies = _extraire_stock_valide(stock)
+            stock_nettoye, produits_avec_anomalies = _extraire_stock_valide(stock)
 
             trier_stock(stock_nettoye)
 
             return ResultatChargementStock(
                 ResultatChargementFichier.SUCCES,
                 stock_nettoye,
-                anomalies
+                produits_avec_anomalies
             )
         
     except FileNotFoundError:
