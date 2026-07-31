@@ -3,6 +3,9 @@ import errno
 import os
 from enum import Enum, unique, auto
 from typing import NamedTuple
+from pathlib import Path
+from datetime import datetime
+from shutil import copy2
 
 import types_structure as ts
 import constantes as const
@@ -365,3 +368,70 @@ def sauvegarder_stock(stock: list[ts.Produit]) -> ResultatSauvegardeFichier:
     except TypeError:
         _supprimer_fichier_temp()
         return ResultatSauvegardeFichier.DONNEES_NON_SERIALISABLES
+
+
+def creer_rapport_anomalies(
+    produits_avec_anomalies: list[ts.ProduitAvecAnomalies]
+) -> str | None:
+    """
+    Crée dans le dossier 'anomalies' un sous dossier
+    'rapport-aaaa-mm-jj-hh-mm-ss' contenant :
+        - une copie du fichier de stock original
+        - un rapport détaillant les anomalies détectées
+
+    Renvoie le chemin du sous dossier créé, ou None en cas d'échec
+    """
+    try:
+        dossier_anomalies = Path(const.DOSSIER_ANOMALIES)
+        dossier_anomalies.mkdir(exist_ok=True)
+
+        date_heure = datetime.now()
+        nom_sous_dossier = date_heure.strftime(
+            const.PREFIXE_DOSSIER_RAPPORT_ANOMALIES + "%Y-%m-%d-%H-%M-%S"
+        )
+        sous_dossier_anomalies = dossier_anomalies / nom_sous_dossier
+        sous_dossier_anomalies.mkdir()
+
+        destination = sous_dossier_anomalies / const.FICHIER_STOCK_ANO
+        copy2(const.FICHIER_STOCK, destination)
+
+        fichier_ano = sous_dossier_anomalies / const.FICHIER_ANOMALIES
+        date_heure_rapport = date_heure.strftime("%Y-%m-%d %H:%M:%S")
+        with open(fichier_ano, "w", encoding="utf-8") as f:
+            f.write(const.TXT_DATE_HEURE_RAPPORT_ANO + date_heure_rapport)
+            f.write("\n\n")
+            for produit in produits_avec_anomalies:
+                f.write(const.TXT_SEPARATEUR)
+                f.write(const.TXT_PRODUIT_NO + str(produit.numero))
+                f.write(const.TXT_SEPARATEUR)
+
+                f.write(const.TXT_PRODUIT_ORIGINE)
+                f.write(
+                    json.dumps(
+                        produit.produit_original,
+                        indent=4,
+                        ensure_ascii=False
+                    )
+                )
+
+                f.write(const.TXT_ANOMALIES)
+                for anomalie in produit.anomalies:
+                    f.write("\n\t- " + anomalie)
+
+                f.write(const.TXT_RESULTAT)
+                if produit.produit_nettoye is None:
+                    f.write(const.TXT_PRODUIT_NON_CONSERVE)
+                else:
+                    f.write(
+                        json.dumps(
+                            produit.produit_nettoye,
+                            indent=4,
+                            ensure_ascii=False
+                        )
+                    )
+
+                f.write("\n")
+
+        return str(sous_dossier_anomalies)
+    except OSError:
+        return None

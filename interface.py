@@ -530,15 +530,14 @@ def afficher_erreur_fichier(
 
 
 def afficher_anomalies_fichier(
-    produits_avec_anomalies: list[types_structure.ProduitAvecAnomalies]
+    nom_dossier_anomalies: str | None
 ) -> None:
     print(const.ANO_LISTE)
-    for produit in produits_avec_anomalies:
-        print(f"Produit no {produit.numero} :")
-        for anomalie in produit.anomalies:
-            print(f"{anomalie}")
+    if nom_dossier_anomalies is None:
+        print(const.ANO_MSG_ERR_CREATION_RAPPORT)
+    else:
+        print(const.ANO_MSG_INFO_RAPPORT.format(nom_dossier_anomalies))
     print(const.ANO_MSG_NOUVEAU_FICHIER_STOCK)
-    print(const.ERR_MSG_SAUVER_FICHIER_STOCK_ENDOMMAGE)
     _attendre_touche_entree_avec_message()
 
 

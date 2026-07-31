@@ -1,6 +1,18 @@
-# Fichiers du programme
+# Fichiers et dossiers du programme
 FICHIER_STOCK = "stock.json"
 FICHIER_STOCK_TEMP = "stock.tmp"
+DOSSIER_ANOMALIES = "anomalies"
+PREFIXE_DOSSIER_RAPPORT_ANOMALIES = "rapport-"
+FICHIER_STOCK_ANO = FICHIER_STOCK + ".ano"
+FICHIER_ANOMALIES = "anomalies.txt"
+TXT_DATE_HEURE_RAPPORT_ANO = "Rapport créé le "
+CARACTERE_SEPARATEUR = "="
+TXT_SEPARATEUR = f"\n{CARACTERE_SEPARATEUR*60}\n"
+TXT_PRODUIT_NO = "Produit n°"
+TXT_PRODUIT_ORIGINE = "\nProduit d'origine :\n"
+TXT_ANOMALIES = "\n\nAnomalies :"
+TXT_RESULTAT = "\n\nRésultat :\n"
+TXT_PRODUIT_NON_CONSERVE = "Ce produit n'a pas été conservé."
 
 # Clés du type Produit
 CLE_NOM = "nom"
@@ -173,13 +185,22 @@ INFO_RENOMMAGE_STOCK_VIDE = "Le stock est vide : renommage impossible."
 ANO_ENTIER = "int"
 ANO_FLOTTANT = "float"
 ANO_LISTE = (
-    "\nATTENTION : des anomalies existent dans le fichier {0} :\n".format(
+    "\nATTENTION : des anomalies existent dans le fichier '{0}'.\n".format(
         FICHIER_STOCK
     )
 )
+ANO_MSG_INFO_RAPPORT = (
+    "Vous trouverez dans le dossier '{0}' une copie de ce fichier ainsi que son "
+    "rapport d'anomalies."
+)
+ANO_MSG_ERR_CREATION_RAPPORT = (
+    "Une erreur est survenue lors de la création du rapport d'anomalies. "
+    "La sauvegarde de '{0}' et son rapport d'anomalies "
+    "n'ont peut-être pas été effectués.".format(FICHIER_STOCK)
+)
 ANO_MSG_NOUVEAU_FICHIER_STOCK = (
-    "\nUn nouveau fichier '{0}' sera créé et remplacera l'existant à l'ajout, "
-    "modification ou suppression d'un produit.".format(FICHIER_STOCK)
+    "\nUn nouveau fichier '{0}' remplacera l'existant lors de la prochaine "
+    "modification du stock.".format(FICHIER_STOCK)
 )
 NO_ANO = "Produit OK"
 ANO_NOM_INEXISTANT = "Pas de champ '{0}', le produit sera ignoré.".format(CLE_NOM)

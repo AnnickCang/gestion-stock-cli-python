@@ -184,7 +184,8 @@ def main():
         ifc.afficher_erreur_fichier(chargement_fichier)
     
     if anomalies_du_fichier:
-        ifc.afficher_anomalies_fichier(anomalies_du_fichier)
+        nom_dossier_anomalies = donnees.creer_rapport_anomalies(anomalies_du_fichier)
+        ifc.afficher_anomalies_fichier(nom_dossier_anomalies)
 
     continuer = True
     while continuer:
