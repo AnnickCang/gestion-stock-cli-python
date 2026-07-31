@@ -1,5 +1,6 @@
 from typing import TypedDict
 from typing import NamedTuple
+from dataclasses import dataclass
 
 
 class Produit(TypedDict):
@@ -13,6 +14,20 @@ class ChampsNumeriquesProduit(TypedDict):
     quantite: int
     seuil: int
     prix: float
+
+
+@dataclass
+class ProduitAvecAnomalies:
+    """
+    Représente un produit ayant présenté une ou plusieurs anomalies
+    lors du chargement du stock.
+    Si `produit_nettoye` vaut `None`, le produit n'a pas été conservé
+    dans le stock nettoyé
+    """
+    numero: int
+    produit_original: object
+    anomalies: list[str]
+    produit_nettoye: Produit | None
 
 
 class InfosProduitFormatees(NamedTuple):
@@ -47,6 +62,6 @@ class ProduitExtraitValideAvecWarnings(NamedTuple):
     warnings: list[str]
 
 
-class StockExtraitValideAvecWarnings(NamedTuple):
+class ResultatExtractionStock(NamedTuple):
     stock: list[Produit]
-    warnings: list[str]
+    produits_avec_anomalies: list[ProduitAvecAnomalies]

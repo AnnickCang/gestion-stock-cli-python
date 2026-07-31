@@ -529,12 +529,15 @@ def afficher_erreur_fichier(
     _attendre_touche_entree_avec_message()
 
 
-def afficher_anomalies_fichier(anomalies: list[str]) -> None:
+def afficher_anomalies_fichier(
+    nom_dossier_anomalies: str | None
+) -> None:
     print(const.ANO_LISTE)
-    for anomalie in anomalies:
-        print(anomalie)
+    if nom_dossier_anomalies is None:
+        print(const.ANO_MSG_ERR_CREATION_RAPPORT)
+    else:
+        print(const.ANO_MSG_INFO_RAPPORT.format(nom_dossier_anomalies))
     print(const.ANO_MSG_NOUVEAU_FICHIER_STOCK)
-    print(const.ERR_MSG_SAUVER_FICHIER_STOCK_ENDOMMAGE)
     _attendre_touche_entree_avec_message()
 
 

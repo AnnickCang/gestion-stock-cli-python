@@ -3,6 +3,9 @@ import errno
 import os
 from enum import Enum, unique, auto
 from typing import NamedTuple
+from pathlib import Path
+from datetime import datetime
+from shutil import copy2
 
 import types_structure as ts
 import constantes as const
@@ -28,7 +31,7 @@ class ResultatSauvegardeFichier(Enum):
 class ResultatChargementStock(NamedTuple):
     resultat_chargement: ResultatChargementFichier
     stock: list[ts.Produit]
-    warnings: list[str]
+    produits_avec_anomalies: list[ts.ProduitAvecAnomalies]
 
 
 ERREURS_ECRITURE_PREVISIBLES = {
@@ -262,12 +265,12 @@ def _extraire_produit_valide(
 
 def _extraire_stock_valide(
     stock: list[object]
-) -> ts.StockExtraitValideAvecWarnings:
+) -> ts.ResultatExtractionStock:
     """Renvoie un stock avec des produits vérifiés, nettoyés et sans doublons
     et éventuellement les anomalies associées"""
 
     stock_nettoye: list[ts.Produit] = []
-    anomalies: list[str] = []
+    produits_avec_anomalies: list[ts.ProduitAvecAnomalies] = []
     cles_noms_deja_vus: set[str] = set()
 
     for no_produit, produit in enumerate(stock, start=1):
@@ -278,15 +281,22 @@ def _extraire_stock_valide(
             if nom_normalise in cles_noms_deja_vus:
                 msg_anomalie = const.ANO_NOM_DOUBLON.format(produit_nettoye[CLE_NOM])
                 msgs_anomalies.append(msg_anomalie)
+                produit_nettoye = None
             else:
                 cles_noms_deja_vus.add(nom_normalise)
                 stock_nettoye.append(produit_nettoye)
-        
-        for anomalie in msgs_anomalies:
-            txt_anomalie = const.ANO_NO_PRODUIT.format(no_produit)
-            anomalies.append(txt_anomalie + anomalie)
-    
-    return ts.StockExtraitValideAvecWarnings(stock_nettoye, anomalies)
+
+        if msgs_anomalies:
+            produits_avec_anomalies.append(
+                ts.ProduitAvecAnomalies(
+                    numero=no_produit,
+                    produit_original=produit,
+                    anomalies=msgs_anomalies,
+                    produit_nettoye=produit_nettoye
+                )
+            )
+
+    return ts.ResultatExtractionStock(stock_nettoye, produits_avec_anomalies)
 
 
 def trier_stock(stock: list[ts.Produit]) -> None:
@@ -309,14 +319,14 @@ def charger_stock() -> ResultatChargementStock:
                     []
                 )
 
-            stock_nettoye, anomalies = _extraire_stock_valide(stock)
+            stock_nettoye, produits_avec_anomalies = _extraire_stock_valide(stock)
 
             trier_stock(stock_nettoye)
 
             return ResultatChargementStock(
                 ResultatChargementFichier.SUCCES,
                 stock_nettoye,
-                anomalies
+                produits_avec_anomalies
             )
         
     except FileNotFoundError:
@@ -358,3 +368,70 @@ def sauvegarder_stock(stock: list[ts.Produit]) -> ResultatSauvegardeFichier:
     except TypeError:
         _supprimer_fichier_temp()
         return ResultatSauvegardeFichier.DONNEES_NON_SERIALISABLES
+
+
+def creer_rapport_anomalies(
+    produits_avec_anomalies: list[ts.ProduitAvecAnomalies]
+) -> str | None:
+    """
+    Crée dans le dossier 'anomalies' un sous dossier
+    'rapport-aaaa-mm-jj-hh-mm-ss' contenant :
+        - une copie du fichier de stock original
+        - un rapport détaillant les anomalies détectées
+
+    Renvoie le chemin du sous dossier créé, ou None en cas d'échec
+    """
+    try:
+        dossier_anomalies = Path(const.DOSSIER_ANOMALIES)
+        dossier_anomalies.mkdir(exist_ok=True)
+
+        date_heure = datetime.now()
+        nom_sous_dossier = date_heure.strftime(
+            const.PREFIXE_DOSSIER_RAPPORT_ANOMALIES + "%Y-%m-%d-%H-%M-%S"
+        )
+        sous_dossier_anomalies = dossier_anomalies / nom_sous_dossier
+        sous_dossier_anomalies.mkdir()
+
+        destination = sous_dossier_anomalies / const.FICHIER_STOCK_ANO
+        copy2(const.FICHIER_STOCK, destination)
+
+        fichier_ano = sous_dossier_anomalies / const.FICHIER_ANOMALIES
+        date_heure_rapport = date_heure.strftime("%Y-%m-%d %H:%M:%S")
+        with open(fichier_ano, "w", encoding="utf-8") as f:
+            f.write(const.TXT_DATE_HEURE_RAPPORT_ANO + date_heure_rapport)
+            f.write("\n\n")
+            for produit in produits_avec_anomalies:
+                f.write(const.TXT_SEPARATEUR)
+                f.write(const.TXT_PRODUIT_NO + str(produit.numero))
+                f.write(const.TXT_SEPARATEUR)
+
+                f.write(const.TXT_PRODUIT_ORIGINE)
+                f.write(
+                    json.dumps(
+                        produit.produit_original,
+                        indent=4,
+                        ensure_ascii=False
+                    )
+                )
+
+                f.write(const.TXT_ANOMALIES)
+                for anomalie in produit.anomalies:
+                    f.write("\n\t- " + anomalie)
+
+                f.write(const.TXT_RESULTAT)
+                if produit.produit_nettoye is None:
+                    f.write(const.TXT_PRODUIT_NON_CONSERVE)
+                else:
+                    f.write(
+                        json.dumps(
+                            produit.produit_nettoye,
+                            indent=4,
+                            ensure_ascii=False
+                        )
+                    )
+
+                f.write("\n")
+
+        return str(sous_dossier_anomalies)
+    except OSError:
+        return None
