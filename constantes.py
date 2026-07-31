@@ -225,6 +225,9 @@ ANO_CHAMP_NUM_INEXISTANT = (
     "Le champ '{0}' n'existe pas et a été créé avec une valeur à 0."
 )
 ANO_PRODUIT_STRUCTURE_INVALIDE = "Produit invalide, le produit sera ignoré."
+ANO_CHAMP_INVALIDE = (
+    "Le champ '{0}' n'est pas valide, il ne sera pas conservé."
+)
 
 # Suggestions de recherche
 RECH_NB_ELEMENTS_RETOUR = 5
