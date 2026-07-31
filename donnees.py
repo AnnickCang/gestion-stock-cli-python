@@ -47,6 +47,8 @@ CLE_QUANTITE = const.CLE_QUANTITE
 CLE_SEUIL = const.CLE_SEUIL
 CLE_PRIX = const.CLE_PRIX
 
+CLES_PRODUIT_VALIDES = ts.Produit.__required_keys__
+
 
 def _supprimer_fichier_temp() -> None:
     try:
@@ -236,8 +238,10 @@ def _extraire_champs_numeriques_valides(
 def _extraire_produit_valide(
     produit: object
 ) -> ts.ProduitExtraitValideAvecWarnings:
-    """Vérifie et retourne un produit avec des clés et valeurs valides ou None
-    et la liste de warnings associés"""
+    """
+    Vérifie et retourne un produit avec des clés et valeurs valides ou None
+    et la liste de warnings associés
+    """
     
     produit_anomalies = []
 
@@ -253,6 +257,9 @@ def _extraire_produit_valide(
     
     numeriques_valides, anomalies_numeriques = _extraire_champs_numeriques_valides(produit_dict)
     produit_anomalies.extend(anomalies_numeriques)
+
+    anomalies_cles = _extraire_cles_produit_invalides(produit_dict)
+    produit_anomalies.extend(anomalies_cles)
     
     produit_nettoye: ts.Produit = {
         CLE_NOM: nom_nettoye,
@@ -299,6 +306,19 @@ def _extraire_stock_valide(
     return ts.ResultatExtractionStock(stock_nettoye, produits_avec_anomalies)
 
 
+def _extraire_cles_produit_invalides(produit: dict[str, object]) -> list[str]:
+    """
+    Renvoie une liste d'anomalies contenant les clés invalides s'il y en a
+    """
+    anomalies_cles = []
+    cles_produit_invalides = set(produit.keys()) - CLES_PRODUIT_VALIDES
+    for cle in cles_produit_invalides:
+        anomalies_cles.append(
+            const.ANO_CHAMP_INVALIDE.format(cle)
+        )
+    return anomalies_cles
+    
+    
 def trier_stock(stock: list[ts.Produit]) -> None:
     """Trie le stock par nom de produit"""
     stock.sort(key=lambda item: norm(item[CLE_NOM]))
