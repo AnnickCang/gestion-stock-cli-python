@@ -236,11 +236,12 @@ def _extraire_champs_numeriques_valides(
 
 
 def _extraire_produit_valide(
-    produit: object
+    produit: object,
+    cles_noms_deja_vus: set[str]
 ) -> ts.ProduitExtraitValideAvecWarnings:
     """
-    Vérifie et retourne un produit avec des clés et valeurs valides ou None
-    et la liste de warnings associés
+    Vérifie et retourne un produit avec des clés et valeurs valides et son nom normalisé
+    ou None et la liste de warnings associés
     """
     
     produit_anomalies = []
@@ -256,6 +257,9 @@ def _extraire_produit_valide(
         return ts.ProduitExtraitValideAvecWarnings(None, produit_anomalies, None)
 
     nom_normalise = norm(nom_nettoye)
+    if nom_normalise in cles_noms_deja_vus:
+        produit_anomalies.append(const.ANO_NOM_DOUBLON.format(nom_nettoye))
+        return ts.ProduitExtraitValideAvecWarnings(None, produit_anomalies, None)
     
     numeriques_valides, anomalies_numeriques = _extraire_champs_numeriques_valides(produit_dict)
     produit_anomalies.extend(anomalies_numeriques)
@@ -283,17 +287,15 @@ def _extraire_stock_valide(
     cles_noms_deja_vus: set[str] = set()
 
     for no_produit, produit in enumerate(stock, start=1):
-        produit_nettoye, msgs_anomalies, nom_normalise = _extraire_produit_valide(produit)
-        
+        produit_nettoye, msgs_anomalies, nom_normalise = _extraire_produit_valide(
+            produit,
+            cles_noms_deja_vus
+        )
+
         if produit_nettoye is not None:
-            nom_normalise = norm(produit_nettoye[CLE_NOM])
-            if nom_normalise in cles_noms_deja_vus:
-                msg_anomalie = const.ANO_NOM_DOUBLON.format(produit_nettoye[CLE_NOM])
-                msgs_anomalies.append(msg_anomalie)
-                produit_nettoye = None
-            else:
-                cles_noms_deja_vus.add(nom_normalise)
-                stock_nettoye.append(produit_nettoye)
+            assert nom_normalise is not None
+            stock_nettoye.append(produit_nettoye)
+            cles_noms_deja_vus.add(nom_normalise)
 
         if msgs_anomalies:
             produits_avec_anomalies.append(
