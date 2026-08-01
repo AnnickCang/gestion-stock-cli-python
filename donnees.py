@@ -247,13 +247,15 @@ def _extraire_produit_valide(
 
     if not isinstance(produit, dict):
         produit_anomalies.append(const.ANO_PRODUIT_STRUCTURE_INVALIDE)
-        return ts.ProduitExtraitValideAvecWarnings(None, produit_anomalies)
+        return ts.ProduitExtraitValideAvecWarnings(None, produit_anomalies, None)
      
     produit_dict: dict[str, object] = produit
     nom_nettoye, nom_anomalies = _extraire_nom_produit_valide(produit_dict)
     produit_anomalies.extend(nom_anomalies)
     if nom_nettoye is None:
-        return ts.ProduitExtraitValideAvecWarnings(None, produit_anomalies)
+        return ts.ProduitExtraitValideAvecWarnings(None, produit_anomalies, None)
+
+    nom_normalise = norm(nom_nettoye)
     
     numeriques_valides, anomalies_numeriques = _extraire_champs_numeriques_valides(produit_dict)
     produit_anomalies.extend(anomalies_numeriques)
@@ -267,7 +269,7 @@ def _extraire_produit_valide(
         CLE_SEUIL: numeriques_valides[CLE_SEUIL],
         CLE_PRIX: numeriques_valides[CLE_PRIX]
     }
-    return ts.ProduitExtraitValideAvecWarnings(produit_nettoye, produit_anomalies)
+    return ts.ProduitExtraitValideAvecWarnings(produit_nettoye, produit_anomalies, nom_normalise)
 
 
 def _extraire_stock_valide(
@@ -281,7 +283,7 @@ def _extraire_stock_valide(
     cles_noms_deja_vus: set[str] = set()
 
     for no_produit, produit in enumerate(stock, start=1):
-        produit_nettoye, msgs_anomalies = _extraire_produit_valide(produit)
+        produit_nettoye, msgs_anomalies, nom_normalise = _extraire_produit_valide(produit)
         
         if produit_nettoye is not None:
             nom_normalise = norm(produit_nettoye[CLE_NOM])
