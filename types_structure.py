@@ -60,6 +60,7 @@ class ChampsNumeriquesExtraitsAvecWarnings(NamedTuple):
 class ProduitExtraitValideAvecWarnings(NamedTuple):
     produit: Produit | None
     warnings: list[str]
+    nom_normalise: str | None
 
 
 class ResultatExtractionStock(NamedTuple):
