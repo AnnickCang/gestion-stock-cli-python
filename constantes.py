@@ -203,12 +203,11 @@ ANO_MSG_NOUVEAU_FICHIER_STOCK = (
     "modification du stock.".format(FICHIER_STOCK)
 )
 NO_ANO = "Produit OK"
-ANO_NOM_INEXISTANT = "Pas de champ '{0}', le produit sera ignoré.".format(CLE_NOM)
-ANO_NOM_VIDE = "Le champ '{0}' est vide, le produit sera ignoré.".format(CLE_NOM)
-ANO_NOM_DOUBLON = "Le produit '{0}' existe déjà dans le stock, il sera ignoré."
+ANO_NOM_INEXISTANT = "Pas de champ '{0}'.".format(CLE_NOM)
+ANO_NOM_VIDE = "Le champ '{0}' est vide.".format(CLE_NOM)
+ANO_NOM_DOUBLON = "Le produit '{0}' existe déjà dans le stock."
 ANO_CHAMP_PAS_STR = (
-    "Le champ '{0}' n'est pas une chaîne de caractères, "
-    "le produit sera ignoré."
+    "Le champ '{0}' n'est pas une chaîne de caractères."
 )
 ANO_CHAMP_TROP_LONG = "Le champ '{0}' dépasse {1} caractères, il sera tronqué."
 ANO_NO_PRODUIT = "Produit n°{0} : "
@@ -224,9 +223,16 @@ ANO_CHAMP_NUM_CONV_ZERO = (
 ANO_CHAMP_NUM_INEXISTANT = (
     "Le champ '{0}' n'existe pas et a été créé avec une valeur à 0."
 )
-ANO_PRODUIT_STRUCTURE_INVALIDE = "Produit invalide, le produit sera ignoré."
+ANO_PRODUIT_STRUCTURE_INVALIDE = (
+    "La structure du produit n'est pas valide "
+    "(structure attendue : un dictionnaire)."
+)
 ANO_CHAMP_INVALIDE = (
     "Le champ '{0}' n'est pas valide, il ne sera pas conservé."
+)
+ANO_ARRET_VERIFICATION = (
+    "La vérification du produit a été interrompue "
+    "après la détection d'une anomalie bloquante."
 )
 
 # Suggestions de recherche

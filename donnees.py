@@ -248,17 +248,20 @@ def _extraire_produit_valide(
 
     if not isinstance(produit, dict):
         produit_anomalies.append(const.ANO_PRODUIT_STRUCTURE_INVALIDE)
+        produit_anomalies.append(const.ANO_ARRET_VERIFICATION)
         return ts.ProduitExtraitValideAvecWarnings(None, produit_anomalies, None)
      
     produit_dict: dict[str, object] = produit
     nom_nettoye, nom_anomalies = _extraire_nom_produit_valide(produit_dict)
     produit_anomalies.extend(nom_anomalies)
     if nom_nettoye is None:
+        produit_anomalies.append(const.ANO_ARRET_VERIFICATION)
         return ts.ProduitExtraitValideAvecWarnings(None, produit_anomalies, None)
 
     nom_normalise = norm(nom_nettoye)
     if nom_normalise in cles_noms_deja_vus:
         produit_anomalies.append(const.ANO_NOM_DOUBLON.format(nom_nettoye))
+        produit_anomalies.append(const.ANO_ARRET_VERIFICATION)
         return ts.ProduitExtraitValideAvecWarnings(None, produit_anomalies, None)
     
     numeriques_valides, anomalies_numeriques = _extraire_champs_numeriques_valides(produit_dict)
