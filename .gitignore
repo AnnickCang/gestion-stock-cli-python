@@ -1,16 +1,16 @@
-# Environnement virtuel
+# Virtual environment
 .venv/
 
-# Dossier éditeur
+# Editor settings
 .vscode/
 
-# Cache des outils de développement
+# Development tools cache
 .ruff_cache/
 
-# Fichiers Python compilés
+# Compiled Python files
 __pycache__/
 *.pyc
 
-# Données locales
+# Local data
 anomalies/
 stock.json
