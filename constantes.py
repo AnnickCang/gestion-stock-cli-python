@@ -71,6 +71,7 @@ NAV_RETOUR_MENU = "[Entrée] : retour au menu principal"
 NAV_PAGE_PRECEDENTE = f"{'[p + Entrée] : précédente':26}"
 NAV_PAGE_SUIVANTE = "[s + Entrée] : suivante"
 NAV_PAGE_PRECEDENTE_VIDE = f"{' ':26}"
+NAV_GENERER_FICHIER_IMPRIMABLE = "[g + Entrée] : générer une version imprimable"
 # Retours de navigation dans les pages d'un tableau
 NAV_RETOUR_SEUL = 0
 NAV_RETOUR_PRECEDENT = 1

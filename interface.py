@@ -351,6 +351,7 @@ def afficher_stock(stock: list[types_structure.Produit]) -> None:
         print(const.NUMEROTATION_PAGE.format(page_courante, total_pages))
 
         choix_navigation = _afficher_aide_navigation_page(page_courante, total_pages)
+        print(const.NAV_GENERER_FICHIER_IMPRIMABLE)
         page_courante = _mettre_a_jour_page_courante(choix_navigation, page_courante)
         if page_courante is None:
             break
@@ -410,6 +411,7 @@ def afficher_alertes(
         print(const.NUMEROTATION_PAGE.format(page_courante, total_pages))
 
         choix_navigation = _afficher_aide_navigation_page(page_courante, total_pages)
+        print(const.NAV_GENERER_FICHIER_IMPRIMABLE)
         page_courante = _mettre_a_jour_page_courante(choix_navigation, page_courante)
         if page_courante is None:
             break
@@ -486,6 +488,7 @@ def afficher_inventaire(stock: list[types_structure.Produit]) -> None:
         print(const.NUMEROTATION_PAGE.format(page_courante, total_pages))
 
         choix_navigation = _afficher_aide_navigation_page(page_courante, total_pages)
+        print(const.NAV_GENERER_FICHIER_IMPRIMABLE)
         page_courante = _mettre_a_jour_page_courante(choix_navigation, page_courante)
         if page_courante is None:
             break
