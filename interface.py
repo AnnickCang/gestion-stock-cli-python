@@ -1,12 +1,11 @@
 import os
 from datetime import datetime
+from enum import Enum, unique, auto
 
 import types_structure
 import constantes as const
-from gestion_stock import verifier_quantite_sous_seuil
-from gestion_stock import verifier_prix_nul
-from donnees import ResultatChargementFichier
-from donnees import ResultatSauvegardeFichier
+from gestion_stock import verifier_quantite_sous_seuil, verifier_prix_nul
+from donnees import ResultatChargementFichier, ResultatSauvegardeFichier
 
 
 CLE_NOM = const.CLE_NOM
@@ -20,6 +19,21 @@ TIRET_CADRE = const.TIRET_CADRE
 NB_PRODUITS_PAR_PAGE = const.NB_PRODUITS_PAR_PAGE
 NB_LIGNES_VIDES_SOUS_TABLEAU = const.NB_LIGNES_VIDES_SOUS_TABLEAU
 NB_LIGNES_VIDES_INTER_ACTION = const.NB_LIGNES_VIDES_INTER_ACTION
+
+
+@unique
+class AffichageNavigation(Enum):
+    RETOUR_SEUL = auto()
+    RETOUR_PRECEDENT = auto()
+    RETOUR_SUIVANT = auto()
+    RETOUR_PRECEDENT_SUIVANT = auto()
+
+@unique
+class ActionUtilisateur(Enum):
+    RETOUR_MENU = ""
+    PAGE_SUIVANTE = "S"
+    PAGE_PRECEDENTE = "P"
+    GENERATION_FICHIER_IMPRIMABLE = "G"
 
 
 def _afficher_lignes_vides(nb_lignes: int = 1) -> None:
@@ -49,33 +63,52 @@ def _attendre_touche_entree_pour_retour_menu() -> None:
     input(const.NAV_RETOUR_MENU)
 
 
-def _attendre_choix_navigation_page(choix_possible: int) -> str:
-    """Renvoie un choix valide pour naviguer dans les pages d'un affichage
-    ou revenir au menu principal"""
-    MENUP_CHOIX = const.MENUP_CHOIX
-    RETOUR_MENU = const.CHOIX_RETOUR_MENU
-    PAGE_PRECEDENTE = const.CHOIX_PAGE_PRECEDENTE
-    PAGE_SUIVANTE = const.CHOIX_PAGE_SUIVANTE
+def _attendre_action_utilisateur(
+    choix_possible: AffichageNavigation
+) -> ActionUtilisateur:
+    """
+    Renvoie un choix valide pour :
+    - naviguer dans les pages d'un affichage
+    - revenir au menu principal
+    - afficher une version imprimable du tableau visualisé
+    """
 
-    if choix_possible == const.NAV_RETOUR_SEUL:
-        input()
-        return RETOUR_MENU
-    
-    choix = input(MENUP_CHOIX).strip().upper()
-    match choix_possible:
-        case const.NAV_RETOUR_PRECEDENT:
-            while choix not in [RETOUR_MENU, PAGE_PRECEDENTE]:
-                print(const.CTRL_CHOIX_ENTREE_OU_P)
-                choix = input(MENUP_CHOIX).strip().upper()
-        case const.NAV_RETOUR_SUIVANT:
-            while choix not in [RETOUR_MENU, PAGE_SUIVANTE]:
-                print(const.CTRL_CHOIX_ENTREE_OU_S)
-                choix = input(MENUP_CHOIX).strip().upper()
-        case const.NAV_RETOUR_PRECEDENT_SUIVANT:
-            while choix not in [RETOUR_MENU, PAGE_PRECEDENTE, PAGE_SUIVANTE]:
-                print(const.CTRL_CHOIX_ENTREE_OU_P_OU_S)
-                choix = input(MENUP_CHOIX).strip().upper()
-    return choix
+    while True:
+        try:
+            choix = ActionUtilisateur(input(const.MENUP_CHOIX).strip().upper())
+        except ValueError:
+            match choix_possible:
+                case AffichageNavigation.RETOUR_SEUL:
+                    print(const.CTRL_CHOIX_ENTREE_OU_G)
+                case AffichageNavigation.RETOUR_PRECEDENT:
+                    print(const.CTRL_CHOIX_ENTREE_OU_P_OU_G)
+                case AffichageNavigation.RETOUR_SUIVANT:
+                    print(const.CTRL_CHOIX_ENTREE_OU_S_OU_G)
+                case AffichageNavigation.RETOUR_PRECEDENT_SUIVANT:
+                    print(const.CTRL_CHOIX_ENTREE_OU_P_OU_S_OU_G)
+            continue
+
+        match choix_possible:
+            case AffichageNavigation.RETOUR_SEUL:
+                if choix not in [
+                    ActionUtilisateur.RETOUR_MENU,
+                    ActionUtilisateur.GENERATION_FICHIER_IMPRIMABLE
+                ]:
+                    print(const.CTRL_CHOIX_ENTREE_OU_G)
+                else:
+                    return choix
+            case AffichageNavigation.RETOUR_PRECEDENT:
+                if choix == ActionUtilisateur.PAGE_SUIVANTE:
+                    print(const.CTRL_CHOIX_ENTREE_OU_P_OU_G)
+                else:
+                    return choix
+            case AffichageNavigation.RETOUR_SUIVANT:
+                if choix == ActionUtilisateur.PAGE_PRECEDENTE:
+                    print(const.CTRL_CHOIX_ENTREE_OU_S_OU_G)
+                else:
+                    return choix
+            case AffichageNavigation.RETOUR_PRECEDENT_SUIVANT:
+                return choix
 
 
 def _afficher_nom_colonnes_stock_et_alertes() -> None:
@@ -111,8 +144,10 @@ def _demander_retour_menu() -> bool:
 
 
 def _demander_entier_positif(message: str) -> int | None:
-    """Renvoie l'entrée utilisateur après l'avoir convertie en entier
-    ou None (si champ vide avec validation retour au menu principal)"""
+    """
+    Renvoie l'entrée utilisateur après l'avoir convertie en entier
+    ou None (si champ vide avec validation retour au menu principal)
+    """
     while True:
         entree_utilisateur = input(message).strip()
         if not entree_utilisateur: 
@@ -130,8 +165,10 @@ def _demander_entier_positif(message: str) -> int | None:
 
 
 def _demander_flottant_positif(message: str) -> float | None:
-    """Renvoie l'entrée utilisateur après l'avoir convertie en float
-    ou None (si champ vide avec validation retour au menu principal)"""
+    """
+    Renvoie l'entrée utilisateur après l'avoir convertie en float
+    ou None (si champ vide avec validation retour au menu principal)
+    """
     while True:
         entree_utilisateur = input(message).strip()
         if not entree_utilisateur:
@@ -158,7 +195,9 @@ def _afficher_entree_pour_retour_menu(largeur_cadre: int) -> None:
     _afficher_lignes_vides()
 
 
-def _afficher_aide_navigation_page(page_courante: int, total_pages: int) -> int:
+def _afficher_aide_navigation_page(
+    page_courante: int, total_pages: int
+) -> AffichageNavigation:
     RETOUR_MENU = const.NAV_RETOUR_MENU
     page_precedente = const.NAV_PAGE_PRECEDENTE
     page_suivante = const.NAV_PAGE_SUIVANTE
@@ -166,23 +205,25 @@ def _afficher_aide_navigation_page(page_courante: int, total_pages: int) -> int:
 
     if (page_courante == 1) and (page_courante == total_pages):
         print(f"{RETOUR_MENU}")
-        return const.NAV_RETOUR_SEUL
+        return AffichageNavigation.RETOUR_SEUL
 
     if page_courante == 1:
         print(f"{RETOUR_MENU} - {page_precedente_vide} - {page_suivante}")
-        return const.NAV_RETOUR_SUIVANT
+        return AffichageNavigation.RETOUR_SUIVANT
     
     if page_courante == total_pages:
         print(f"{RETOUR_MENU} - {page_precedente} -")
-        return const.NAV_RETOUR_PRECEDENT
+        return AffichageNavigation.RETOUR_PRECEDENT
     
     print(f"{RETOUR_MENU} - {page_precedente} - {page_suivante}")
-    return const.NAV_RETOUR_PRECEDENT_SUIVANT
+    return AffichageNavigation.RETOUR_PRECEDENT_SUIVANT
 
 
 def _calculer_total_pages(produits: list[types_structure.Produit]) -> int:
-    """Renvoie le nombre total de pages pour une liste de produits à afficher
-    avec n produits par page"""
+    """
+    Renvoie le nombre total de pages pour une liste de 
+    produits à afficher avec n produits par page
+    """
     nb_produits = len(produits)
     total_pages = nb_produits // NB_PRODUITS_PAR_PAGE
     if (nb_produits % NB_PRODUITS_PAR_PAGE != 0):
@@ -191,17 +232,16 @@ def _calculer_total_pages(produits: list[types_structure.Produit]) -> int:
 
 
 def _mettre_a_jour_page_courante(
-    choix_navigation: int,
+    choix_page: ActionUtilisateur,
     page_courante: int
-) -> int | None:
-    """Renvoie le numéro de la page courante après le choix de navigation"""
-    match _attendre_choix_navigation_page(choix_navigation):
-        case const.CHOIX_PAGE_PRECEDENTE:
-            return page_courante - 1
-        case const.CHOIX_PAGE_SUIVANTE:
-            return page_courante + 1
-        case const.CHOIX_RETOUR_MENU:
-            return None
+) -> int:
+    """
+    Renvoie le numéro de la page courante après le choix de navigation
+    """
+    if choix_page == ActionUtilisateur.PAGE_PRECEDENTE:
+        return page_courante - 1
+    else:
+        return page_courante + 1
 
 
 def _completer_sous_tableau_avec_lignes_vides(
@@ -233,6 +273,10 @@ def _formater_info_produit(
     return types_structure.InfosProduitFormatees(nom, quantite, seuil, prix)
 
 
+def _afficher_version_imprimable() -> None:
+    print("\n\tEN ATTENTE D'IMPLEMENTATION\n")
+
+
 def effacer_ecran_terminal() -> None:
     os.system('cls' if os.name == 'nt' else 'clear')
 
@@ -241,8 +285,10 @@ def demander_info_produit(
     produit: types_structure.Produit | None,
     nom_produit: str = ""
 ) -> types_structure.ChampsNumeriquesProduit | None:
-    """Renvoie un dict ChampsNumeriquesProduit (saisies par l'utilisateur)
-    ou None si la saisie est annulée"""
+    """
+    Renvoie un dict ChampsNumeriquesProduit (saisies par l'utilisateur)
+    ou None si la saisie est annulée
+    """
     if produit is None:
         print(const.INFO_PRODUIT_AJOUT_EN_COURS.format(nom_produit))
     else:
@@ -270,8 +316,10 @@ def demander_info_produit(
 
 
 def demander_nom_produit(message: str) -> str | None:
-    """Demande et renvoie un nom de produit ne dépassant pas une taille max
-    ou None si la saisie est vide"""
+    """
+    Demande et renvoie un nom de produit ne dépassant pas une taille max
+    ou None si la saisie est vide
+    """
     while True:
         nom: str = input(message).strip()
         if not nom:
@@ -310,7 +358,9 @@ def demander_confirmation_suppression(nom_produit: str) -> bool:
 
 
 def afficher_stock(stock: list[types_structure.Produit]) -> None:
-    """Affiche le stock actuel avec quantités et seuils et une pagination"""
+    """
+    Affiche le stock actuel avec quantités et seuils et une pagination
+    """
     titre = const.TITRE_SMENU_STOCK
     
     if not stock:
@@ -350,11 +400,18 @@ def afficher_stock(stock: list[types_structure.Produit]) -> None:
         _afficher_lignes_vides(NB_LIGNES_VIDES_SOUS_TABLEAU)
         print(const.NUMEROTATION_PAGE.format(page_courante, total_pages))
 
-        choix_navigation = _afficher_aide_navigation_page(page_courante, total_pages)
+        navigation_affichee = _afficher_aide_navigation_page(page_courante, total_pages)
         print(const.NAV_GENERER_FICHIER_IMPRIMABLE)
-        page_courante = _mettre_a_jour_page_courante(choix_navigation, page_courante)
-        if page_courante is None:
-            break
+        while True:
+            choix_action = _attendre_action_utilisateur(navigation_affichee)
+            match choix_action:
+                case ActionUtilisateur.RETOUR_MENU:
+                    return
+                case ActionUtilisateur.GENERATION_FICHIER_IMPRIMABLE:
+                    _afficher_version_imprimable()
+                case _:
+                    page_courante = _mettre_a_jour_page_courante(choix_action, page_courante)
+                    break
 
         debut = (page_courante - 1) * NB_PRODUITS_PAR_PAGE
         fin = debut + NB_PRODUITS_PAR_PAGE
@@ -366,8 +423,9 @@ def afficher_alertes(
     stock: list[types_structure.Produit],
     alertes: list[types_structure.Produit]
 ) -> None:
-    """Affiche la liste des noms de produits en dessous du seuil
-    avec une pagination"""
+    """
+    Affiche la liste des noms de produits en dessous du seuil avec une pagination
+    """
     titre = const.TITRE_SMENU_ALERTES
     
     if not stock:
@@ -410,11 +468,18 @@ def afficher_alertes(
         _afficher_lignes_vides(NB_LIGNES_VIDES_SOUS_TABLEAU)
         print(const.NUMEROTATION_PAGE.format(page_courante, total_pages))
 
-        choix_navigation = _afficher_aide_navigation_page(page_courante, total_pages)
+        navigation_affichee = _afficher_aide_navigation_page(page_courante, total_pages)
         print(const.NAV_GENERER_FICHIER_IMPRIMABLE)
-        page_courante = _mettre_a_jour_page_courante(choix_navigation, page_courante)
-        if page_courante is None:
-            break
+        while True:
+            choix_action = _attendre_action_utilisateur(navigation_affichee)
+            match choix_action:
+                case ActionUtilisateur.RETOUR_MENU:
+                    return
+                case ActionUtilisateur.GENERATION_FICHIER_IMPRIMABLE:
+                    _afficher_version_imprimable()
+                case _:
+                    page_courante = _mettre_a_jour_page_courante(choix_action, page_courante)
+                    break
         
         debut = (page_courante - 1) * NB_PRODUITS_PAR_PAGE
         fin = debut + NB_PRODUITS_PAR_PAGE
@@ -423,7 +488,9 @@ def afficher_alertes(
 
 
 def afficher_info_produit(produit: types_structure.Produit) -> None:
-    """Affiche les données relatives au produit recherché s'il a été trouvé"""
+    """
+    Affiche les données relatives au produit recherché s'il a été trouvé
+    """
     nom, quantite, seuil, prix = _formater_info_produit(produit)
     _afficher_lignes_vides()
     print(f"{const.LBL_NOM_PRODUIT}{nom}")
@@ -434,8 +501,10 @@ def afficher_info_produit(produit: types_structure.Produit) -> None:
         
 
 def afficher_inventaire(stock: list[types_structure.Produit]) -> None:
-    """Affiche les données d'inventaire avec une pagination.
-    Le coût total du stock est affiché sur la dernière page."""
+    """
+    Affiche les données d'inventaire avec une pagination.
+    Le coût total du stock est affiché sur la dernière page.
+    """
     jour = datetime.today().strftime("%d/%m/%Y")
     titre = const.TITRE_SMENU_INVENTAIRE + jour + " ---"
     
@@ -487,11 +556,18 @@ def afficher_inventaire(stock: list[types_structure.Produit]) -> None:
 
         print(const.NUMEROTATION_PAGE.format(page_courante, total_pages))
 
-        choix_navigation = _afficher_aide_navigation_page(page_courante, total_pages)
+        navigation_affichee = _afficher_aide_navigation_page(page_courante, total_pages)
         print(const.NAV_GENERER_FICHIER_IMPRIMABLE)
-        page_courante = _mettre_a_jour_page_courante(choix_navigation, page_courante)
-        if page_courante is None:
-            break
+        while True:
+            choix_action = _attendre_action_utilisateur(navigation_affichee)
+            match choix_action:
+                case ActionUtilisateur.RETOUR_MENU:
+                    return
+                case ActionUtilisateur.GENERATION_FICHIER_IMPRIMABLE:
+                    _afficher_version_imprimable()
+                case _:
+                    page_courante = _mettre_a_jour_page_courante(choix_action, page_courante)
+                    break
 
         debut = (page_courante - 1) * NB_PRODUITS_PAR_PAGE
         fin = debut + NB_PRODUITS_PAR_PAGE
@@ -545,8 +621,9 @@ def afficher_anomalies_fichier(
 
 
 def afficher_et_demander_choix_menu() -> str:
-    """Affiche le menu principal et renvoie le choix de l'utilisateur"""
-
+    """
+    Affiche le menu principal et renvoie le choix de l'utilisateur
+    """
     print(f"{const.TITRE_MENU_PRINCIPAL:^{LARGEUR_CADRE}}")
     _afficher_lignes_vides()
     print(const.MENUP_SM_STOCK)
@@ -596,7 +673,9 @@ def afficher_produit_existe(nom: str) -> None:
 
 
 def afficher_suggestions(suggestions: list[str], nom_produit: str) -> None:
-    """Affiche une liste de suggestions pour la recherche d'un produit"""
+    """
+    Affiche une liste de suggestions pour la recherche d'un produit
+    """
     suggestions_pour_produit_non_trouve = (
         f"{const.INFO_PROD_NON_TROUVE.format(nom_produit)} "
         f"{const.RECH_SUGGESTIONS}"

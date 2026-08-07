@@ -72,11 +72,6 @@ NAV_PAGE_PRECEDENTE = f"{'[p + Entrée] : précédente':26}"
 NAV_PAGE_SUIVANTE = "[s + Entrée] : suivante"
 NAV_PAGE_PRECEDENTE_VIDE = f"{' ':26}"
 NAV_GENERER_FICHIER_IMPRIMABLE = "[g + Entrée] : générer une version imprimable"
-# Retours de navigation dans les pages d'un tableau
-NAV_RETOUR_SEUL = 0
-NAV_RETOUR_PRECEDENT = 1
-NAV_RETOUR_SUIVANT = 2
-NAV_RETOUR_PRECEDENT_SUIVANT = 3
 
 # Messages de contrôle
 CTRL_NB_POSITIF = "Veuillez entrer un nombre positif ou nul."
@@ -87,14 +82,18 @@ CTRL_NOM_EXISTE_DEJA = "'{0}' existe déjà.\n"
 CTRL_REP_OUI_NON = "Veuillez répondre par 'o' ou 'n'."
 CTRL_REP_OUI = "O"
 CTRL_REP_NON = "N"
-CTRL_CHOIX_ENTREE_OU_P = (
-    "Choix invalide. Veuillez choisir entre 'Entrée' ou 'p + Entrée'."
+CTRL_CHOIX_ENTREE_OU_G = (
+    "Choix invalide. Veuillez choisir entre 'Entrée' ou 'g + Entrée'."
 )
-CTRL_CHOIX_ENTREE_OU_S = (
-    "Choix invalide. Veuillez choisir entre 'Entrée' ou 's + Entrée'."
+CTRL_CHOIX_ENTREE_OU_P_OU_G = (
+    "Choix invalide. Veuillez choisir entre 'Entrée', 'p + Entrée' ou 'g + Entrée'."
 )
-CTRL_CHOIX_ENTREE_OU_P_OU_S = (
-    "Choix invalide. Veuillez choisir entre 'Entrée', 'p + Entrée' ou 's + Entrée'."
+CTRL_CHOIX_ENTREE_OU_S_OU_G = (
+    "Choix invalide. Veuillez choisir entre 'Entrée', 's + Entrée' ou 'g + Entrée'."
+)
+CTRL_CHOIX_ENTREE_OU_P_OU_S_OU_G = (
+    "Choix invalide. Veuillez choisir entre 'Entrée', 'p + Entrée', "
+    "'s + Entrée' ou 'g + Entrée'."
 )
 
 # Questions
@@ -149,9 +148,6 @@ COL_PRIX = "prix UHT"
 COL_TOTAL = "total HT"
 NB_PRODUITS_PAR_PAGE = 10
 NUMEROTATION_PAGE = "Page {0}/{1}\n"
-CHOIX_PAGE_SUIVANTE = "S"
-CHOIX_PAGE_PRECEDENTE = "P"
-CHOIX_RETOUR_MENU = ""
 NB_LIGNES_VIDES_SOUS_TABLEAU = 3
 TAILLE_MAX_NOM_PRODUIT = LARGEUR_COL
 
