@@ -380,7 +380,7 @@ def afficher_stock(stock: list[types_structure.Produit]) -> None:
         _afficher_lignes_vides()
 
         _afficher_nom_colonnes_stock_et_alertes()
-        for numero, produit in enumerate(stock[debut:fin], start=1):
+        for numero, produit in enumerate(stock[debut:fin], start=debut + 1):
             no_ligne = f"{numero:>{const.LARGEUR_COL_NUMERO_LIGNE}}"
             nom = f"{produit[CLE_NOM]:{LARGEUR_COL}}"
             quantite = f"{produit[CLE_QUANTITE]:>{LARGEUR_COL}}"
@@ -394,7 +394,7 @@ def afficher_stock(stock: list[types_structure.Produit]) -> None:
 
         _completer_sous_tableau_avec_lignes_vides(
             page_courante == total_pages,
-            NB_PRODUITS_PAR_PAGE - int(no_ligne)
+            NB_PRODUITS_PAR_PAGE - len(stock[debut:fin])
         )
 
         _afficher_lignes_vides(NB_LIGNES_VIDES_SOUS_TABLEAU)
@@ -452,7 +452,7 @@ def afficher_alertes(
         _afficher_lignes_vides()
 
         _afficher_nom_colonnes_stock_et_alertes()
-        for no_ligne, produit in enumerate(alertes[debut:fin], start=1):
+        for no_ligne, produit in enumerate(alertes[debut:fin], start=debut + 1):
             print(f"| {no_ligne:>{const.LARGEUR_COL_NUMERO_LIGNE}} "
                 f"| {produit[CLE_NOM]:{LARGEUR_COL}} "
                 f"| {produit[CLE_QUANTITE]:>{LARGEUR_COL}} "
@@ -462,7 +462,7 @@ def afficher_alertes(
 
         _completer_sous_tableau_avec_lignes_vides(
             page_courante == total_pages,
-            NB_PRODUITS_PAR_PAGE - int(no_ligne)
+            NB_PRODUITS_PAR_PAGE - len(alertes[debut:fin])
         )
 
         _afficher_lignes_vides(NB_LIGNES_VIDES_SOUS_TABLEAU)
@@ -530,7 +530,7 @@ def afficher_inventaire(stock: list[types_structure.Produit]) -> None:
         _afficher_lignes_vides()
 
         _afficher_nom_colonnes_inventaire()
-        for numero, produit in enumerate(stock[debut:fin], start=1):
+        for numero, produit in enumerate(stock[debut:fin], start=debut + 1):
             no_ligne = f"{numero:>{const.LARGEUR_COL_NUMERO_LIGNE}}"
             cout_total_produit = produit[CLE_QUANTITE] * produit[CLE_PRIX]
             nom = f"{produit[CLE_NOM]:{LARGEUR_COL}}"
@@ -547,7 +547,7 @@ def afficher_inventaire(stock: list[types_structure.Produit]) -> None:
         if page_courante == total_pages:
             _completer_sous_tableau_avec_lignes_vides(
                 True,
-                NB_PRODUITS_PAR_PAGE - int(no_ligne)
+                NB_PRODUITS_PAR_PAGE - len(stock[debut:fin])
             )
             texte_total_stock = const.INFO_COUT_STOCK.format(cout_total_stock)
             print(f"\n{texte_total_stock:>{LARGEUR_CADRE_INVENTAIRE}}\n")
