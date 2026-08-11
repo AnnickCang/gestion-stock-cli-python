@@ -1,4 +1,8 @@
 import os
+import webbrowser
+from textwrap import dedent
+from html import escape
+from pathlib import Path
 from datetime import datetime
 from enum import Enum, unique, auto
 
@@ -34,6 +38,12 @@ class ActionUtilisateur(Enum):
     PAGE_SUIVANTE = "S"
     PAGE_PRECEDENTE = "P"
     GENERATION_FICHIER_IMPRIMABLE = "G"
+
+@unique
+class TypeDocument(Enum):
+    STOCK = auto()
+    ALERTES = auto()
+    INVENTAIRE = auto()
 
 
 def _afficher_lignes_vides(nb_lignes: int = 1) -> None:
@@ -273,8 +283,182 @@ def _formater_info_produit(
     return types_structure.InfosProduitFormatees(nom, quantite, seuil, prix)
 
 
-def _afficher_version_imprimable() -> None:
-    print("\n\tEN ATTENTE D'IMPLEMENTATION\n")
+def _preparer_donnees_tabulaires(
+    type_document: TypeDocument,
+    stock: list[types_structure.Produit]
+) -> tuple[list[str], list[list[str]]]:
+    """
+    Construit la liste des entêtes de colonnes et la liste des lignes produit
+    à afficher dans la version imprimable selon le type de document demandé
+    """
+    donnees_tabulaires = []
+    if type_document is TypeDocument.INVENTAIRE:
+        entetes_tableau = [
+            const.COL_NUMERO_LIGNE,
+            const.COL_PRODUIT,
+            const.COL_QUANTITE,
+            const.COL_PRIX,
+            const.COL_TOTAL
+        ]
+        for numero, produit in enumerate(stock, start=1):
+            ligne = [
+                str(numero),
+                produit[CLE_NOM],
+                str(produit[CLE_QUANTITE]),
+                f"{produit[CLE_PRIX]:.2f}",
+                f"{produit[CLE_QUANTITE] * produit[CLE_PRIX]:.2f}"
+            ]
+            donnees_tabulaires.append(ligne)
+    else:
+        entetes_tableau = [
+            const.COL_NUMERO_LIGNE,
+            const.COL_PRODUIT,
+            const.COL_QUANTITE,
+            const.COL_SEUIL
+        ]
+        for numero, produit in enumerate(stock, start=1):
+            ligne = [
+                str(numero),
+                produit[CLE_NOM],
+                str(produit[CLE_QUANTITE]),
+                str(produit[CLE_SEUIL])
+            ]
+            donnees_tabulaires.append(ligne)
+    return entetes_tableau, donnees_tabulaires
+
+
+def _creer_contenu_html(
+    titre: str,
+    entetes_tableau: list[str],
+    tableau: list[list[str]],
+    cout_stock: float | None = None
+) -> str:
+    date_heure = datetime.now()
+    date_document = date_heure.strftime("%d/%m/%Y")
+    heure_document = date_heure.strftime("%H:%M")
+    document_genere_le = const.HTML_GENERE_LE.format(date_document, heure_document)
+
+    entetes_html = ''.join(
+        f"<th>{escape(entete)}</th>"
+        for entete in entetes_tableau
+    )
+
+    lignes_html = ''.join(
+        f"<tr>{
+            ''.join(
+                f'<td>{escape(cellule)}</td>'
+                for cellule in ligne
+            )
+        }</tr>"
+        for ligne in tableau
+    )
+
+    contenu_html = dedent(
+    f"""\
+    <!DOCTYPE html>
+    <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>{titre}</title>
+            <style>
+                #date-generation {{
+                    text-align: right;
+                }}
+                .tableau-affiche {{
+                    width: fit-content;
+                    margin: auto;
+                }}
+                #cout-stock {{
+                    text-align: right;
+                }}
+                h1 {{
+                    text-align: center;
+                }}
+                table {{
+                    margin: auto;
+                    border-collapse: collapse;
+                }}
+                th, td {{
+                    border: solid black 1px;
+                    padding: 6px 12px;
+                }}
+                td {{
+                    text-align: right;
+                }}
+                th:nth-child(2), td:nth-child(2) {{
+                    text-align: left;
+                }}
+            </style>
+        </head>
+
+        <body>
+            <p id="date-generation">{document_genere_le}</p>
+            <h1>{titre}</h1>
+            <div class="tableau-affiche">
+                <table>
+                    <tr>
+                        {entetes_html}
+                    </tr>
+                    {lignes_html}
+                </table>"""
+    )
+
+    if cout_stock is not None:
+        cout_stock_html = const.INFO_COUT_STOCK.format(cout_stock)
+        contenu_html += dedent(
+        f"""\
+                <p id="cout-stock">{cout_stock_html}</p>"""
+        )
+
+    contenu_html += dedent(
+    """\
+            </div>
+        </body>
+    </html>"""
+    )
+
+    return contenu_html
+
+
+def _creer_fichier_html(
+    type_document: TypeDocument,
+    contenu_html: str
+) -> Path:
+
+    match type_document:
+        case TypeDocument.STOCK:
+            sous_dossier = const.DOSSIER_EXPORTS_STOCK
+        case TypeDocument.ALERTES:
+            sous_dossier = const.DOSSIER_EXPORTS_ALERTES
+        case TypeDocument.INVENTAIRE:
+            sous_dossier = const.DOSSIER_EXPORTS_INVENTAIRE
+    dossier_export = Path(const.DOSSIER_EXPORTS) / sous_dossier
+    dossier_export.mkdir(parents=True, exist_ok=True)
+
+    date_heure = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+    nom_fichier = sous_dossier + '-' + date_heure + '.html'
+    fichier = dossier_export / nom_fichier
+    with open(fichier, "w", encoding="utf-8") as f:
+        f.write(contenu_html)
+
+    return fichier
+
+
+def _afficher_dans_navigateur(chemin_fichier: Path) -> None:
+    chemin_absolu_fichier = chemin_fichier.resolve()
+    webbrowser.open(chemin_absolu_fichier.as_uri())
+
+
+def _afficher_version_imprimable(
+    type_document: TypeDocument,
+    titre: str,
+    stock: list[types_structure.Produit],
+    cout_stock: float | None = None
+) -> None:
+    entetes_tableau, tableau = _preparer_donnees_tabulaires(type_document, stock)
+    contenu_html = _creer_contenu_html(titre, entetes_tableau, tableau, cout_stock)
+    chemin_fichier = _creer_fichier_html(type_document, contenu_html)
+    _afficher_dans_navigateur(chemin_fichier)
 
 
 def effacer_ecran_terminal() -> None:
@@ -408,7 +592,11 @@ def afficher_stock(stock: list[types_structure.Produit]) -> None:
                 case ActionUtilisateur.RETOUR_MENU:
                     return
                 case ActionUtilisateur.GENERATION_FICHIER_IMPRIMABLE:
-                    _afficher_version_imprimable()
+                    _afficher_version_imprimable(
+                        TypeDocument.STOCK,
+                        titre,
+                        stock
+                    )
                 case _:
                     page_courante = _mettre_a_jour_page_courante(choix_action, page_courante)
                     break
@@ -476,7 +664,11 @@ def afficher_alertes(
                 case ActionUtilisateur.RETOUR_MENU:
                     return
                 case ActionUtilisateur.GENERATION_FICHIER_IMPRIMABLE:
-                    _afficher_version_imprimable()
+                    _afficher_version_imprimable(
+                        TypeDocument.ALERTES,
+                        titre,
+                        alertes
+                    )
                 case _:
                     page_courante = _mettre_a_jour_page_courante(choix_action, page_courante)
                     break
@@ -564,7 +756,12 @@ def afficher_inventaire(stock: list[types_structure.Produit]) -> None:
                 case ActionUtilisateur.RETOUR_MENU:
                     return
                 case ActionUtilisateur.GENERATION_FICHIER_IMPRIMABLE:
-                    _afficher_version_imprimable()
+                    _afficher_version_imprimable(
+                        TypeDocument.INVENTAIRE,
+                        titre,
+                        stock,
+                        cout_total_stock
+                    )
                 case _:
                     page_courante = _mettre_a_jour_page_courante(choix_action, page_courante)
                     break

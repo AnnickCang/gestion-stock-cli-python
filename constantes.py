@@ -1,6 +1,7 @@
 # Fichiers et dossiers du programme
 FICHIER_STOCK = "stock.json"
 FICHIER_STOCK_TEMP = "stock.tmp"
+
 DOSSIER_ANOMALIES = "anomalies"
 PREFIXE_DOSSIER_RAPPORT_ANOMALIES = "rapport-"
 FICHIER_STOCK_ANO = FICHIER_STOCK + ".ano"
@@ -13,6 +14,12 @@ TXT_PRODUIT_ORIGINE = "\nProduit d'origine :\n"
 TXT_ANOMALIES = "\n\nAnomalies :"
 TXT_RESULTAT = "\n\nRésultat :\n"
 TXT_PRODUIT_NON_CONSERVE = "Ce produit n'a pas été conservé."
+
+DOSSIER_EXPORTS = "exports"
+DOSSIER_EXPORTS_STOCK = "stock"
+DOSSIER_EXPORTS_ALERTES = "alertes"
+DOSSIER_EXPORTS_INVENTAIRE = "inventaire"
+HTML_GENERE_LE = "Généré le {0} à {1}"
 
 # Clés du type Produit
 CLE_NOM = "nom"
