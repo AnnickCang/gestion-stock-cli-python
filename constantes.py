@@ -1,6 +1,7 @@
 # Fichiers et dossiers du programme
 FICHIER_STOCK = "stock.json"
 FICHIER_STOCK_TEMP = "stock.tmp"
+
 DOSSIER_ANOMALIES = "anomalies"
 PREFIXE_DOSSIER_RAPPORT_ANOMALIES = "rapport-"
 FICHIER_STOCK_ANO = FICHIER_STOCK + ".ano"
@@ -13,6 +14,12 @@ TXT_PRODUIT_ORIGINE = "\nProduit d'origine :\n"
 TXT_ANOMALIES = "\n\nAnomalies :"
 TXT_RESULTAT = "\n\nRésultat :\n"
 TXT_PRODUIT_NON_CONSERVE = "Ce produit n'a pas été conservé."
+
+DOSSIER_EXPORTS = "exports"
+DOSSIER_EXPORTS_STOCK = "stock"
+DOSSIER_EXPORTS_ALERTES = "alertes"
+DOSSIER_EXPORTS_INVENTAIRE = "inventaire"
+HTML_GENERE_LE = "Généré le {0} à {1}"
 
 # Clés du type Produit
 CLE_NOM = "nom"
@@ -64,6 +71,13 @@ ERR_MSG_DONNEES_NON_SERIALISABLES = (
     "Les données ne peuvent pas être converties au format JSON."
 )
 ERR_MSG_ARRET_PROGRAMME = "Le programme va s'arrêter."
+ERR_CREATION_FICHIER_HTML = (
+    "\nUne erreur est survenue lors de la création du fichier imprimable."
+)
+ERR_OUVERTURE_FICHIER_HTML = (
+    "\nLe fichier '{0}' a été créé mais il est impossible de l'ouvrir "
+    "dans le navigateur par défaut."
+)
 
 # Aide à la navigation
 NAV_MSG_ENTREE_POUR_CONTINUER = "\n(Appuyer sur 'Entrée' pour continuer)"
@@ -71,11 +85,7 @@ NAV_RETOUR_MENU = "[Entrée] : retour au menu principal"
 NAV_PAGE_PRECEDENTE = f"{'[p + Entrée] : précédente':26}"
 NAV_PAGE_SUIVANTE = "[s + Entrée] : suivante"
 NAV_PAGE_PRECEDENTE_VIDE = f"{' ':26}"
-# Retours de navigation dans les pages d'un tableau
-NAV_RETOUR_SEUL = 0
-NAV_RETOUR_PRECEDENT = 1
-NAV_RETOUR_SUIVANT = 2
-NAV_RETOUR_PRECEDENT_SUIVANT = 3
+NAV_GENERER_FICHIER_IMPRIMABLE = "[g + Entrée] : générer une version imprimable"
 
 # Messages de contrôle
 CTRL_NB_POSITIF = "Veuillez entrer un nombre positif ou nul."
@@ -86,14 +96,18 @@ CTRL_NOM_EXISTE_DEJA = "'{0}' existe déjà.\n"
 CTRL_REP_OUI_NON = "Veuillez répondre par 'o' ou 'n'."
 CTRL_REP_OUI = "O"
 CTRL_REP_NON = "N"
-CTRL_CHOIX_ENTREE_OU_P = (
-    "Choix invalide. Veuillez choisir entre 'Entrée' ou 'p + Entrée'."
+CTRL_CHOIX_ENTREE_OU_G = (
+    "Choix invalide. Veuillez choisir entre 'Entrée' ou 'g + Entrée'."
 )
-CTRL_CHOIX_ENTREE_OU_S = (
-    "Choix invalide. Veuillez choisir entre 'Entrée' ou 's + Entrée'."
+CTRL_CHOIX_ENTREE_OU_P_OU_G = (
+    "Choix invalide. Veuillez choisir entre 'Entrée', 'p + Entrée' ou 'g + Entrée'."
 )
-CTRL_CHOIX_ENTREE_OU_P_OU_S = (
-    "Choix invalide. Veuillez choisir entre 'Entrée', 'p + Entrée' ou 's + Entrée'."
+CTRL_CHOIX_ENTREE_OU_S_OU_G = (
+    "Choix invalide. Veuillez choisir entre 'Entrée', 's + Entrée' ou 'g + Entrée'."
+)
+CTRL_CHOIX_ENTREE_OU_P_OU_S_OU_G = (
+    "Choix invalide. Veuillez choisir entre 'Entrée', 'p + Entrée', "
+    "'s + Entrée' ou 'g + Entrée'."
 )
 
 # Questions
@@ -148,9 +162,6 @@ COL_PRIX = "prix UHT"
 COL_TOTAL = "total HT"
 NB_PRODUITS_PAR_PAGE = 10
 NUMEROTATION_PAGE = "Page {0}/{1}\n"
-CHOIX_PAGE_SUIVANTE = "S"
-CHOIX_PAGE_PRECEDENTE = "P"
-CHOIX_RETOUR_MENU = ""
 NB_LIGNES_VIDES_SOUS_TABLEAU = 3
 TAILLE_MAX_NOM_PRODUIT = LARGEUR_COL
 

@@ -1,12 +1,15 @@
 import os
+import webbrowser
+from textwrap import dedent
+from html import escape
+from pathlib import Path
 from datetime import datetime
+from enum import Enum, unique, auto
 
 import types_structure
 import constantes as const
-from gestion_stock import verifier_quantite_sous_seuil
-from gestion_stock import verifier_prix_nul
-from donnees import ResultatChargementFichier
-from donnees import ResultatSauvegardeFichier
+from gestion_stock import verifier_quantite_sous_seuil, verifier_prix_nul
+from donnees import ResultatChargementFichier, ResultatSauvegardeFichier
 
 
 CLE_NOM = const.CLE_NOM
@@ -20,6 +23,27 @@ TIRET_CADRE = const.TIRET_CADRE
 NB_PRODUITS_PAR_PAGE = const.NB_PRODUITS_PAR_PAGE
 NB_LIGNES_VIDES_SOUS_TABLEAU = const.NB_LIGNES_VIDES_SOUS_TABLEAU
 NB_LIGNES_VIDES_INTER_ACTION = const.NB_LIGNES_VIDES_INTER_ACTION
+
+
+@unique
+class AffichageNavigation(Enum):
+    RETOUR_SEUL = auto()
+    RETOUR_PRECEDENT = auto()
+    RETOUR_SUIVANT = auto()
+    RETOUR_PRECEDENT_SUIVANT = auto()
+
+@unique
+class ActionUtilisateur(Enum):
+    RETOUR_MENU = ""
+    PAGE_SUIVANTE = "S"
+    PAGE_PRECEDENTE = "P"
+    GENERATION_FICHIER_IMPRIMABLE = "G"
+
+@unique
+class TypeDocument(Enum):
+    STOCK = auto()
+    ALERTES = auto()
+    INVENTAIRE = auto()
 
 
 def _afficher_lignes_vides(nb_lignes: int = 1) -> None:
@@ -49,33 +73,52 @@ def _attendre_touche_entree_pour_retour_menu() -> None:
     input(const.NAV_RETOUR_MENU)
 
 
-def _attendre_choix_navigation_page(choix_possible: int) -> str:
-    """Renvoie un choix valide pour naviguer dans les pages d'un affichage
-    ou revenir au menu principal"""
-    MENUP_CHOIX = const.MENUP_CHOIX
-    RETOUR_MENU = const.CHOIX_RETOUR_MENU
-    PAGE_PRECEDENTE = const.CHOIX_PAGE_PRECEDENTE
-    PAGE_SUIVANTE = const.CHOIX_PAGE_SUIVANTE
+def _attendre_action_utilisateur(
+    choix_possible: AffichageNavigation
+) -> ActionUtilisateur:
+    """
+    Renvoie un choix valide pour :
+    - naviguer dans les pages d'un affichage
+    - revenir au menu principal
+    - afficher une version imprimable du tableau visualisé
+    """
 
-    if choix_possible == const.NAV_RETOUR_SEUL:
-        input()
-        return RETOUR_MENU
-    
-    choix = input(MENUP_CHOIX).strip().upper()
-    match choix_possible:
-        case const.NAV_RETOUR_PRECEDENT:
-            while choix not in [RETOUR_MENU, PAGE_PRECEDENTE]:
-                print(const.CTRL_CHOIX_ENTREE_OU_P)
-                choix = input(MENUP_CHOIX).strip().upper()
-        case const.NAV_RETOUR_SUIVANT:
-            while choix not in [RETOUR_MENU, PAGE_SUIVANTE]:
-                print(const.CTRL_CHOIX_ENTREE_OU_S)
-                choix = input(MENUP_CHOIX).strip().upper()
-        case const.NAV_RETOUR_PRECEDENT_SUIVANT:
-            while choix not in [RETOUR_MENU, PAGE_PRECEDENTE, PAGE_SUIVANTE]:
-                print(const.CTRL_CHOIX_ENTREE_OU_P_OU_S)
-                choix = input(MENUP_CHOIX).strip().upper()
-    return choix
+    while True:
+        try:
+            choix = ActionUtilisateur(input(const.MENUP_CHOIX).strip().upper())
+        except ValueError:
+            match choix_possible:
+                case AffichageNavigation.RETOUR_SEUL:
+                    print(const.CTRL_CHOIX_ENTREE_OU_G)
+                case AffichageNavigation.RETOUR_PRECEDENT:
+                    print(const.CTRL_CHOIX_ENTREE_OU_P_OU_G)
+                case AffichageNavigation.RETOUR_SUIVANT:
+                    print(const.CTRL_CHOIX_ENTREE_OU_S_OU_G)
+                case AffichageNavigation.RETOUR_PRECEDENT_SUIVANT:
+                    print(const.CTRL_CHOIX_ENTREE_OU_P_OU_S_OU_G)
+            continue
+
+        match choix_possible:
+            case AffichageNavigation.RETOUR_SEUL:
+                if choix not in [
+                    ActionUtilisateur.RETOUR_MENU,
+                    ActionUtilisateur.GENERATION_FICHIER_IMPRIMABLE
+                ]:
+                    print(const.CTRL_CHOIX_ENTREE_OU_G)
+                else:
+                    return choix
+            case AffichageNavigation.RETOUR_PRECEDENT:
+                if choix == ActionUtilisateur.PAGE_SUIVANTE:
+                    print(const.CTRL_CHOIX_ENTREE_OU_P_OU_G)
+                else:
+                    return choix
+            case AffichageNavigation.RETOUR_SUIVANT:
+                if choix == ActionUtilisateur.PAGE_PRECEDENTE:
+                    print(const.CTRL_CHOIX_ENTREE_OU_S_OU_G)
+                else:
+                    return choix
+            case AffichageNavigation.RETOUR_PRECEDENT_SUIVANT:
+                return choix
 
 
 def _afficher_nom_colonnes_stock_et_alertes() -> None:
@@ -111,8 +154,10 @@ def _demander_retour_menu() -> bool:
 
 
 def _demander_entier_positif(message: str) -> int | None:
-    """Renvoie l'entrée utilisateur après l'avoir convertie en entier
-    ou None (si champ vide avec validation retour au menu principal)"""
+    """
+    Renvoie l'entrée utilisateur après l'avoir convertie en entier
+    ou None (si champ vide avec validation retour au menu principal)
+    """
     while True:
         entree_utilisateur = input(message).strip()
         if not entree_utilisateur: 
@@ -130,8 +175,10 @@ def _demander_entier_positif(message: str) -> int | None:
 
 
 def _demander_flottant_positif(message: str) -> float | None:
-    """Renvoie l'entrée utilisateur après l'avoir convertie en float
-    ou None (si champ vide avec validation retour au menu principal)"""
+    """
+    Renvoie l'entrée utilisateur après l'avoir convertie en float
+    ou None (si champ vide avec validation retour au menu principal)
+    """
     while True:
         entree_utilisateur = input(message).strip()
         if not entree_utilisateur:
@@ -158,7 +205,9 @@ def _afficher_entree_pour_retour_menu(largeur_cadre: int) -> None:
     _afficher_lignes_vides()
 
 
-def _afficher_aide_navigation_page(page_courante: int, total_pages: int) -> int:
+def _afficher_aide_navigation_page(
+    page_courante: int, total_pages: int
+) -> AffichageNavigation:
     RETOUR_MENU = const.NAV_RETOUR_MENU
     page_precedente = const.NAV_PAGE_PRECEDENTE
     page_suivante = const.NAV_PAGE_SUIVANTE
@@ -166,23 +215,25 @@ def _afficher_aide_navigation_page(page_courante: int, total_pages: int) -> int:
 
     if (page_courante == 1) and (page_courante == total_pages):
         print(f"{RETOUR_MENU}")
-        return const.NAV_RETOUR_SEUL
+        return AffichageNavigation.RETOUR_SEUL
 
     if page_courante == 1:
         print(f"{RETOUR_MENU} - {page_precedente_vide} - {page_suivante}")
-        return const.NAV_RETOUR_SUIVANT
+        return AffichageNavigation.RETOUR_SUIVANT
     
     if page_courante == total_pages:
         print(f"{RETOUR_MENU} - {page_precedente} -")
-        return const.NAV_RETOUR_PRECEDENT
+        return AffichageNavigation.RETOUR_PRECEDENT
     
     print(f"{RETOUR_MENU} - {page_precedente} - {page_suivante}")
-    return const.NAV_RETOUR_PRECEDENT_SUIVANT
+    return AffichageNavigation.RETOUR_PRECEDENT_SUIVANT
 
 
 def _calculer_total_pages(produits: list[types_structure.Produit]) -> int:
-    """Renvoie le nombre total de pages pour une liste de produits à afficher
-    avec n produits par page"""
+    """
+    Renvoie le nombre total de pages pour une liste de 
+    produits à afficher avec n produits par page
+    """
     nb_produits = len(produits)
     total_pages = nb_produits // NB_PRODUITS_PAR_PAGE
     if (nb_produits % NB_PRODUITS_PAR_PAGE != 0):
@@ -191,17 +242,16 @@ def _calculer_total_pages(produits: list[types_structure.Produit]) -> int:
 
 
 def _mettre_a_jour_page_courante(
-    choix_navigation: int,
+    choix_page: ActionUtilisateur,
     page_courante: int
-) -> int | None:
-    """Renvoie le numéro de la page courante après le choix de navigation"""
-    match _attendre_choix_navigation_page(choix_navigation):
-        case const.CHOIX_PAGE_PRECEDENTE:
-            return page_courante - 1
-        case const.CHOIX_PAGE_SUIVANTE:
-            return page_courante + 1
-        case const.CHOIX_RETOUR_MENU:
-            return None
+) -> int:
+    """
+    Renvoie le numéro de la page courante après le choix de navigation
+    """
+    if choix_page == ActionUtilisateur.PAGE_PRECEDENTE:
+        return page_courante - 1
+    else:
+        return page_courante + 1
 
 
 def _completer_sous_tableau_avec_lignes_vides(
@@ -233,6 +283,203 @@ def _formater_info_produit(
     return types_structure.InfosProduitFormatees(nom, quantite, seuil, prix)
 
 
+def _preparer_donnees_tabulaires(
+    type_document: TypeDocument,
+    stock: list[types_structure.Produit]
+) -> tuple[list[str], list[list[str]]]:
+    """
+    Construit la liste des entêtes de colonnes et la liste des lignes produit
+    à afficher dans la version imprimable selon le type de document demandé
+    """
+    donnees_tabulaires = []
+    if type_document is TypeDocument.INVENTAIRE:
+        entetes_tableau = [
+            const.COL_NUMERO_LIGNE,
+            const.COL_PRODUIT,
+            const.COL_QUANTITE,
+            const.COL_PRIX,
+            const.COL_TOTAL
+        ]
+        for numero, produit in enumerate(stock, start=1):
+            ligne = [
+                str(numero),
+                produit[CLE_NOM],
+                str(produit[CLE_QUANTITE]),
+                f"{produit[CLE_PRIX]:.2f}",
+                f"{produit[CLE_QUANTITE] * produit[CLE_PRIX]:.2f}"
+            ]
+            donnees_tabulaires.append(ligne)
+    else:
+        entetes_tableau = [
+            const.COL_NUMERO_LIGNE,
+            const.COL_PRODUIT,
+            const.COL_QUANTITE,
+            const.COL_SEUIL
+        ]
+        for numero, produit in enumerate(stock, start=1):
+            ligne = [
+                str(numero),
+                produit[CLE_NOM],
+                str(produit[CLE_QUANTITE]),
+                str(produit[CLE_SEUIL])
+            ]
+            donnees_tabulaires.append(ligne)
+    return entetes_tableau, donnees_tabulaires
+
+
+def _creer_contenu_html(
+    titre: str,
+    entetes_tableau: list[str],
+    tableau: list[list[str]],
+    cout_stock: float | None = None
+) -> str:
+    date_heure = datetime.now()
+    date_document = date_heure.strftime("%d/%m/%Y")
+    heure_document = date_heure.strftime("%H:%M")
+    document_genere_le = const.HTML_GENERE_LE.format(date_document, heure_document)
+
+    entetes_html = ''.join(
+        f"<th>{escape(entete)}</th>"
+        for entete in entetes_tableau
+    )
+
+    lignes_html = ''.join(
+        f"<tr>{
+            ''.join(
+                f'<td>{escape(cellule)}</td>'
+                for cellule in ligne
+            )
+        }</tr>"
+        for ligne in tableau
+    )
+
+    contenu_html = dedent(
+    f"""\
+    <!DOCTYPE html>
+    <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>{titre}</title>
+            <style>
+                #date-generation {{
+                    text-align: right;
+                }}
+                .tableau-affiche {{
+                    width: fit-content;
+                    margin: auto;
+                }}
+                #cout-stock {{
+                    text-align: right;
+                }}
+                h1 {{
+                    text-align: center;
+                }}
+                table {{
+                    margin: auto;
+                    border-collapse: collapse;
+                }}
+                th, td {{
+                    border: solid black 1px;
+                    padding: 6px 12px;
+                }}
+                td {{
+                    text-align: right;
+                }}
+                th:nth-child(2), td:nth-child(2) {{
+                    text-align: left;
+                }}
+            </style>
+        </head>
+
+        <body>
+            <p id="date-generation">{document_genere_le}</p>
+            <h1>{titre}</h1>
+            <div class="tableau-affiche">
+                <table>
+                    <tr>
+                        {entetes_html}
+                    </tr>
+                    {lignes_html}
+                </table>"""
+    )
+
+    if cout_stock is not None:
+        cout_stock_html = const.INFO_COUT_STOCK.format(cout_stock)
+        contenu_html += dedent(
+        f"""\
+                <p id="cout-stock">{cout_stock_html}</p>"""
+        )
+
+    contenu_html += dedent(
+    """\
+            </div>
+        </body>
+    </html>"""
+    )
+
+    return contenu_html
+
+
+def _supprimer_fichier_html(chemin_fichier: Path) -> None:
+    try:
+        chemin_fichier.unlink()
+    except OSError:
+        pass
+
+
+def _creer_fichier_html(
+    type_document: TypeDocument,
+    contenu_html: str
+) -> Path | None:
+    """
+    Crée le fichier HTML correspondant au document demandé
+    et retourne son chemin relatif ou None en cas d'échec
+    """
+    match type_document:
+        case TypeDocument.STOCK:
+            sous_dossier = const.DOSSIER_EXPORTS_STOCK
+        case TypeDocument.ALERTES:
+            sous_dossier = const.DOSSIER_EXPORTS_ALERTES
+        case TypeDocument.INVENTAIRE:
+            sous_dossier = const.DOSSIER_EXPORTS_INVENTAIRE
+    dossier_export = Path(const.DOSSIER_EXPORTS) / sous_dossier
+
+    date_heure = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
+    nom_fichier = sous_dossier + '-' + date_heure + '.html'
+    fichier = dossier_export / nom_fichier
+
+    try:
+        dossier_export.mkdir(parents=True, exist_ok=True)
+        with open(fichier, "w", encoding="utf-8") as f:
+            f.write(contenu_html)
+        return fichier
+    except OSError:
+        _supprimer_fichier_html(fichier)
+        return None
+
+
+def _afficher_dans_navigateur(chemin_fichier: Path) -> bool:
+    chemin_absolu_fichier = chemin_fichier.resolve()
+    return webbrowser.open(chemin_absolu_fichier.as_uri())
+
+
+def _afficher_version_imprimable(
+    type_document: TypeDocument,
+    titre: str,
+    stock: list[types_structure.Produit],
+    cout_stock: float | None = None
+) -> None:
+    entetes_tableau, tableau = _preparer_donnees_tabulaires(type_document, stock)
+    contenu_html = _creer_contenu_html(titre, entetes_tableau, tableau, cout_stock)
+    chemin_fichier = _creer_fichier_html(type_document, contenu_html)
+    if chemin_fichier is None:
+        print(const.ERR_CREATION_FICHIER_HTML)
+        return
+    if not _afficher_dans_navigateur(chemin_fichier):
+        chemin_absolu_fichier = chemin_fichier.resolve()
+        print(const.ERR_OUVERTURE_FICHIER_HTML.format(chemin_absolu_fichier))
+
+
 def effacer_ecran_terminal() -> None:
     os.system('cls' if os.name == 'nt' else 'clear')
 
@@ -241,8 +488,10 @@ def demander_info_produit(
     produit: types_structure.Produit | None,
     nom_produit: str = ""
 ) -> types_structure.ChampsNumeriquesProduit | None:
-    """Renvoie un dict ChampsNumeriquesProduit (saisies par l'utilisateur)
-    ou None si la saisie est annulée"""
+    """
+    Renvoie un dict ChampsNumeriquesProduit (saisies par l'utilisateur)
+    ou None si la saisie est annulée
+    """
     if produit is None:
         print(const.INFO_PRODUIT_AJOUT_EN_COURS.format(nom_produit))
     else:
@@ -270,8 +519,10 @@ def demander_info_produit(
 
 
 def demander_nom_produit(message: str) -> str | None:
-    """Demande et renvoie un nom de produit ne dépassant pas une taille max
-    ou None si la saisie est vide"""
+    """
+    Demande et renvoie un nom de produit ne dépassant pas une taille max
+    ou None si la saisie est vide
+    """
     while True:
         nom: str = input(message).strip()
         if not nom:
@@ -310,7 +561,9 @@ def demander_confirmation_suppression(nom_produit: str) -> bool:
 
 
 def afficher_stock(stock: list[types_structure.Produit]) -> None:
-    """Affiche le stock actuel avec quantités et seuils et une pagination"""
+    """
+    Affiche le stock actuel avec quantités et seuils et une pagination
+    """
     titre = const.TITRE_SMENU_STOCK
     
     if not stock:
@@ -330,7 +583,7 @@ def afficher_stock(stock: list[types_structure.Produit]) -> None:
         _afficher_lignes_vides()
 
         _afficher_nom_colonnes_stock_et_alertes()
-        for numero, produit in enumerate(stock[debut:fin], start=1):
+        for numero, produit in enumerate(stock[debut:fin], start=debut + 1):
             no_ligne = f"{numero:>{const.LARGEUR_COL_NUMERO_LIGNE}}"
             nom = f"{produit[CLE_NOM]:{LARGEUR_COL}}"
             quantite = f"{produit[CLE_QUANTITE]:>{LARGEUR_COL}}"
@@ -344,16 +597,28 @@ def afficher_stock(stock: list[types_structure.Produit]) -> None:
 
         _completer_sous_tableau_avec_lignes_vides(
             page_courante == total_pages,
-            NB_PRODUITS_PAR_PAGE - int(no_ligne)
+            NB_PRODUITS_PAR_PAGE - len(stock[debut:fin])
         )
 
         _afficher_lignes_vides(NB_LIGNES_VIDES_SOUS_TABLEAU)
         print(const.NUMEROTATION_PAGE.format(page_courante, total_pages))
 
-        choix_navigation = _afficher_aide_navigation_page(page_courante, total_pages)
-        page_courante = _mettre_a_jour_page_courante(choix_navigation, page_courante)
-        if page_courante is None:
-            break
+        navigation_affichee = _afficher_aide_navigation_page(page_courante, total_pages)
+        print(const.NAV_GENERER_FICHIER_IMPRIMABLE)
+        while True:
+            choix_action = _attendre_action_utilisateur(navigation_affichee)
+            match choix_action:
+                case ActionUtilisateur.RETOUR_MENU:
+                    return
+                case ActionUtilisateur.GENERATION_FICHIER_IMPRIMABLE:
+                    _afficher_version_imprimable(
+                        TypeDocument.STOCK,
+                        titre,
+                        stock
+                    )
+                case _:
+                    page_courante = _mettre_a_jour_page_courante(choix_action, page_courante)
+                    break
 
         debut = (page_courante - 1) * NB_PRODUITS_PAR_PAGE
         fin = debut + NB_PRODUITS_PAR_PAGE
@@ -365,8 +630,9 @@ def afficher_alertes(
     stock: list[types_structure.Produit],
     alertes: list[types_structure.Produit]
 ) -> None:
-    """Affiche la liste des noms de produits en dessous du seuil
-    avec une pagination"""
+    """
+    Affiche la liste des noms de produits en dessous du seuil avec une pagination
+    """
     titre = const.TITRE_SMENU_ALERTES
     
     if not stock:
@@ -393,7 +659,7 @@ def afficher_alertes(
         _afficher_lignes_vides()
 
         _afficher_nom_colonnes_stock_et_alertes()
-        for no_ligne, produit in enumerate(alertes[debut:fin], start=1):
+        for no_ligne, produit in enumerate(alertes[debut:fin], start=debut + 1):
             print(f"| {no_ligne:>{const.LARGEUR_COL_NUMERO_LIGNE}} "
                 f"| {produit[CLE_NOM]:{LARGEUR_COL}} "
                 f"| {produit[CLE_QUANTITE]:>{LARGEUR_COL}} "
@@ -403,16 +669,28 @@ def afficher_alertes(
 
         _completer_sous_tableau_avec_lignes_vides(
             page_courante == total_pages,
-            NB_PRODUITS_PAR_PAGE - int(no_ligne)
+            NB_PRODUITS_PAR_PAGE - len(alertes[debut:fin])
         )
 
         _afficher_lignes_vides(NB_LIGNES_VIDES_SOUS_TABLEAU)
         print(const.NUMEROTATION_PAGE.format(page_courante, total_pages))
 
-        choix_navigation = _afficher_aide_navigation_page(page_courante, total_pages)
-        page_courante = _mettre_a_jour_page_courante(choix_navigation, page_courante)
-        if page_courante is None:
-            break
+        navigation_affichee = _afficher_aide_navigation_page(page_courante, total_pages)
+        print(const.NAV_GENERER_FICHIER_IMPRIMABLE)
+        while True:
+            choix_action = _attendre_action_utilisateur(navigation_affichee)
+            match choix_action:
+                case ActionUtilisateur.RETOUR_MENU:
+                    return
+                case ActionUtilisateur.GENERATION_FICHIER_IMPRIMABLE:
+                    _afficher_version_imprimable(
+                        TypeDocument.ALERTES,
+                        titre,
+                        alertes
+                    )
+                case _:
+                    page_courante = _mettre_a_jour_page_courante(choix_action, page_courante)
+                    break
         
         debut = (page_courante - 1) * NB_PRODUITS_PAR_PAGE
         fin = debut + NB_PRODUITS_PAR_PAGE
@@ -421,7 +699,9 @@ def afficher_alertes(
 
 
 def afficher_info_produit(produit: types_structure.Produit) -> None:
-    """Affiche les données relatives au produit recherché s'il a été trouvé"""
+    """
+    Affiche les données relatives au produit recherché s'il a été trouvé
+    """
     nom, quantite, seuil, prix = _formater_info_produit(produit)
     _afficher_lignes_vides()
     print(f"{const.LBL_NOM_PRODUIT}{nom}")
@@ -432,8 +712,10 @@ def afficher_info_produit(produit: types_structure.Produit) -> None:
         
 
 def afficher_inventaire(stock: list[types_structure.Produit]) -> None:
-    """Affiche les données d'inventaire avec une pagination.
-    Le coût total du stock est affiché sur la dernière page."""
+    """
+    Affiche les données d'inventaire avec une pagination.
+    Le coût total du stock est affiché sur la dernière page.
+    """
     jour = datetime.today().strftime("%d/%m/%Y")
     titre = const.TITRE_SMENU_INVENTAIRE + jour + " ---"
     
@@ -459,7 +741,7 @@ def afficher_inventaire(stock: list[types_structure.Produit]) -> None:
         _afficher_lignes_vides()
 
         _afficher_nom_colonnes_inventaire()
-        for numero, produit in enumerate(stock[debut:fin], start=1):
+        for numero, produit in enumerate(stock[debut:fin], start=debut + 1):
             no_ligne = f"{numero:>{const.LARGEUR_COL_NUMERO_LIGNE}}"
             cout_total_produit = produit[CLE_QUANTITE] * produit[CLE_PRIX]
             nom = f"{produit[CLE_NOM]:{LARGEUR_COL}}"
@@ -476,7 +758,7 @@ def afficher_inventaire(stock: list[types_structure.Produit]) -> None:
         if page_courante == total_pages:
             _completer_sous_tableau_avec_lignes_vides(
                 True,
-                NB_PRODUITS_PAR_PAGE - int(no_ligne)
+                NB_PRODUITS_PAR_PAGE - len(stock[debut:fin])
             )
             texte_total_stock = const.INFO_COUT_STOCK.format(cout_total_stock)
             print(f"\n{texte_total_stock:>{LARGEUR_CADRE_INVENTAIRE}}\n")
@@ -485,10 +767,23 @@ def afficher_inventaire(stock: list[types_structure.Produit]) -> None:
 
         print(const.NUMEROTATION_PAGE.format(page_courante, total_pages))
 
-        choix_navigation = _afficher_aide_navigation_page(page_courante, total_pages)
-        page_courante = _mettre_a_jour_page_courante(choix_navigation, page_courante)
-        if page_courante is None:
-            break
+        navigation_affichee = _afficher_aide_navigation_page(page_courante, total_pages)
+        print(const.NAV_GENERER_FICHIER_IMPRIMABLE)
+        while True:
+            choix_action = _attendre_action_utilisateur(navigation_affichee)
+            match choix_action:
+                case ActionUtilisateur.RETOUR_MENU:
+                    return
+                case ActionUtilisateur.GENERATION_FICHIER_IMPRIMABLE:
+                    _afficher_version_imprimable(
+                        TypeDocument.INVENTAIRE,
+                        titre,
+                        stock,
+                        cout_total_stock
+                    )
+                case _:
+                    page_courante = _mettre_a_jour_page_courante(choix_action, page_courante)
+                    break
 
         debut = (page_courante - 1) * NB_PRODUITS_PAR_PAGE
         fin = debut + NB_PRODUITS_PAR_PAGE
@@ -542,8 +837,9 @@ def afficher_anomalies_fichier(
 
 
 def afficher_et_demander_choix_menu() -> str:
-    """Affiche le menu principal et renvoie le choix de l'utilisateur"""
-
+    """
+    Affiche le menu principal et renvoie le choix de l'utilisateur
+    """
     print(f"{const.TITRE_MENU_PRINCIPAL:^{LARGEUR_CADRE}}")
     _afficher_lignes_vides()
     print(const.MENUP_SM_STOCK)
@@ -593,7 +889,9 @@ def afficher_produit_existe(nom: str) -> None:
 
 
 def afficher_suggestions(suggestions: list[str], nom_produit: str) -> None:
-    """Affiche une liste de suggestions pour la recherche d'un produit"""
+    """
+    Affiche une liste de suggestions pour la recherche d'un produit
+    """
     suggestions_pour_produit_non_trouve = (
         f"{const.INFO_PROD_NON_TROUVE.format(nom_produit)} "
         f"{const.RECH_SUGGESTIONS}"
