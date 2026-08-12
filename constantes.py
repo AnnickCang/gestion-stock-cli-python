@@ -71,6 +71,13 @@ ERR_MSG_DONNEES_NON_SERIALISABLES = (
     "Les données ne peuvent pas être converties au format JSON."
 )
 ERR_MSG_ARRET_PROGRAMME = "Le programme va s'arrêter."
+ERR_CREATION_FICHIER_HTML = (
+    "\nUne erreur est survenue lors de la création du fichier imprimable."
+)
+ERR_OUVERTURE_FICHIER_HTML = (
+    "\nLe fichier '{0}' a été créé mais il est impossible de l'ouvrir "
+    "dans le navigateur par défaut."
+)
 
 # Aide à la navigation
 NAV_MSG_ENTREE_POUR_CONTINUER = "\n(Appuyer sur 'Entrée' pour continuer)"

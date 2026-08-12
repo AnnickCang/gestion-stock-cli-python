@@ -420,11 +420,21 @@ def _creer_contenu_html(
     return contenu_html
 
 
+def _supprimer_fichier_html(chemin_fichier: Path) -> None:
+    try:
+        chemin_fichier.unlink()
+    except OSError:
+        pass
+
+
 def _creer_fichier_html(
     type_document: TypeDocument,
     contenu_html: str
-) -> Path:
-
+) -> Path | None:
+    """
+    Crée le fichier HTML correspondant au document demandé
+    et retourne son chemin relatif ou None en cas d'échec
+    """
     match type_document:
         case TypeDocument.STOCK:
             sous_dossier = const.DOSSIER_EXPORTS_STOCK
@@ -433,20 +443,24 @@ def _creer_fichier_html(
         case TypeDocument.INVENTAIRE:
             sous_dossier = const.DOSSIER_EXPORTS_INVENTAIRE
     dossier_export = Path(const.DOSSIER_EXPORTS) / sous_dossier
-    dossier_export.mkdir(parents=True, exist_ok=True)
 
     date_heure = datetime.now().strftime("%Y-%m-%d-%H-%M-%S")
     nom_fichier = sous_dossier + '-' + date_heure + '.html'
     fichier = dossier_export / nom_fichier
-    with open(fichier, "w", encoding="utf-8") as f:
-        f.write(contenu_html)
 
-    return fichier
+    try:
+        dossier_export.mkdir(parents=True, exist_ok=True)
+        with open(fichier, "w", encoding="utf-8") as f:
+            f.write(contenu_html)
+        return fichier
+    except OSError:
+        _supprimer_fichier_html(fichier)
+        return None
 
 
-def _afficher_dans_navigateur(chemin_fichier: Path) -> None:
+def _afficher_dans_navigateur(chemin_fichier: Path) -> bool:
     chemin_absolu_fichier = chemin_fichier.resolve()
-    webbrowser.open(chemin_absolu_fichier.as_uri())
+    return webbrowser.open(chemin_absolu_fichier.as_uri())
 
 
 def _afficher_version_imprimable(
@@ -458,7 +472,12 @@ def _afficher_version_imprimable(
     entetes_tableau, tableau = _preparer_donnees_tabulaires(type_document, stock)
     contenu_html = _creer_contenu_html(titre, entetes_tableau, tableau, cout_stock)
     chemin_fichier = _creer_fichier_html(type_document, contenu_html)
-    _afficher_dans_navigateur(chemin_fichier)
+    if chemin_fichier is None:
+        print(const.ERR_CREATION_FICHIER_HTML)
+        return
+    if not _afficher_dans_navigateur(chemin_fichier):
+        chemin_absolu_fichier = chemin_fichier.resolve()
+        print(const.ERR_OUVERTURE_FICHIER_HTML.format(chemin_absolu_fichier))
 
 
 def effacer_ecran_terminal() -> None:
