@@ -1,3 +1,5 @@
+[Go to the English version](#stock-management)
+
 # Gestion de stock
 Application de gestion de stock avec interface en ligne de commande (CLI)
 
@@ -39,6 +41,7 @@ Les données sont stockées sous forme d'une liste de dictionnaires :
 - Python 3.10 ou supérieur
 - Développé et testé avec Python 3.14
 - JSON pour le stockage permanent et la portabilité des données
+- HTML/CSS pour la génération d'une version imprimable
 - Aucune dépendance externe (librairie standard Python uniquement)
 
 ## Fonctionnalités
@@ -51,6 +54,7 @@ Les données sont stockées sous forme d'une liste de dictionnaires :
 - Affichage de l'inventaire avec calcul du coût total du stock à la date du jour
 - Tous les affichages (stock, alertes, inventaire) sont triés par ordre alphabétique avec une normalisation Unicode et une pagination
 - Les valeurs nécessitant une attention particulière (prix nul, quantité inférieure au seuil) sont affichées en rouge
+- Génération d'un fichier HTML imprimable pour le stock, les alertes et l'inventaire depuis leur affichage respectif
 
 ## Aperçus de l'interface
 ```text
@@ -59,23 +63,24 @@ Les données sont stockées sous forme d'une liste de dictionnaires :
 -------------------------------------------------------------
 |   n° | produit         |        quantité |  seuil d'alerte |
 -------------------------------------------------------------
-|    1 | Fraise Tagada   |               2 |               5 |
-|    2 | jus d'orange    |               0 |               0 |
-|    3 | lait de coco    |               5 |               2 |
-|    4 | noix de coco    |               3 |               1 |
-|    5 | orange          |               3 |               1 |
-|    6 | orange sanguine |               2 |               1 |
-|    7 | orangeade       |               3 |               1 |
-|    8 | orangina        |              30 |               5 |
-|    9 | Pepsi Cola      |              10 |               3 |
-|   10 | Pepsi orange    |               4 |               2 |
+|   11 | fanta           |               3 |               5 |
+|   12 | Fraise Tagada   |               2 |               5 |
+|   13 | jus d'orange    |               0 |               0 |
+|   14 | lait de coco    |               5 |               2 |
+|   15 | noix de coco    |               3 |               1 |
+|   16 | orange          |               3 |               1 |
+|   17 | orange sanguine |               2 |               1 |
+|   18 | orangeade       |               3 |               1 |
+|   19 | orangina        |              30 |               5 |
+|   20 | Pepsi Cola      |              10 |               3 |
 -------------------------------------------------------------
 
 
 
 Page 2/3
 
-[Entrée] : retour menu principal - [p + Entrée] : précédente  - [s + Entrée] : suivante
+[Entrée] : retour au menu principal - [p + Entrée] : précédente  - [s + Entrée] : suivante
+[g + Entrée] : générer une version imprimable
 
 Choix : 
 ```
@@ -133,17 +138,16 @@ Le projet évolue progressivement afin d'améliorer la robustesse, l'expérience
 - refactorisation architecture / séparation des responsabilités
 - amélioration de la maintenabilité du code
 
-### v1.2 - Amélioration des affichages + UX (en cours)
+### v1.2 - Amélioration des affichages + UX
 - mise en évidence (texte en rouge) des valeurs problématiques (ex: prix nul, quantité inférieure au seuil)
 - ajout d'une colonne en première position pour indiquer le numéro de ligne
 - gestion de la pagination pour l'affichage du stock, des alertes et de l'inventaire (ex: 10 produits par page)
 - amélioration de l'affichage (centrage, espacements, clarté des messages)
-- implémentation de suggestions de noms de produits lors de la suppression ou du renommage
 - création d'un fichier imprimable pour le stock, les alertes et l'inventaire
 - revue des noms de fonctions
 - amélioration du typage statique et de la robustesse du code
 - enregistrement des anomalies dans un fichier texte
-- gestion des clés inutilisées dans le fichier JSON (état actuel : supprimées silencieusement lors d'une sauvegarde) : afficher un warning
+- gestion des clés inutilisées dans le fichier JSON (suppression de ces clés et mention dans le fichier d'anomalies)
 - version bilingue du fichier `README.md`
 - traduction en anglais des commentaires du fichier `.gitignore`
 
@@ -151,7 +155,6 @@ Le projet évolue progressivement afin d'améliorer la robustesse, l'expérience
 - migration de l'interface CLI vers une interface web avec Flask
 - remplacement du stockage JSON par une base de données SQL
 - renommage en anglais de toutes les appellations dans le code
-- pour les données, remplacement de la liste de dictionnaires par un dictionnaire de dictionnaires
 - ajout des champs `unité` et `type`
 - modification du type du champ `prix` en un type adapté aux montants financiers
 - modification du type des champs `quantite` et `seuil` en un type adapté aux valeurs décimales
@@ -161,6 +164,12 @@ Le projet évolue progressivement afin d'améliorer la robustesse, l'expérience
 - paramétrage de la longueur maximale du champ "nom"
 - possibilité de définir le nombre maximum de produits suggérés lors d'une recherche
 - affichage des valeurs existantes d'un produit lors de sa modification (champs pré-remplis)
+- mise en place d'un système de journalisation pour faciliter le diagnostic des erreurs imprévues
 
 ## Auteur
 Projet réalisé dans le cadre d'un apprentissage Python orienté reconversion professionnelle.
+
+
+
+[Aller à la version française](#gestion-de-stock)
+# Stock management
