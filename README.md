@@ -4,7 +4,7 @@
 Application de gestion de stock avec interface en ligne de commande (CLI)
 
 ## Description
-Application de gestion simple d'un stock de produits (lister les produits, les alertes et l'inventaire, gérer l'ajout et la modification des produits) avec une architecture modulaire (séparation de la gestion métier, des données et des interactions avec l'utilisateur) et une sauvegarde des données dans un fichier stock.json.
+Application de gestion simple d'un stock de produits (lister les produits, les alertes et l'inventaire, gérer l'ajout et la modification des produits) avec une architecture modulaire (séparation de la gestion métier, des données et des interactions avec l'utilisateur) et une sauvegarde des données dans un fichier `stock.json`.
 
 ## Structure du projet
 ```
@@ -155,7 +155,7 @@ Le projet évolue progressivement afin d'améliorer la robustesse, l'expérience
 - migration de l'interface CLI vers une interface web avec Flask
 - remplacement du stockage JSON par une base de données SQL
 - renommage en anglais de toutes les appellations dans le code
-- ajout des champs `unité` et `type`
+- ajout des champs `unite` et `type`
 - modification du type du champ `prix` en un type adapté aux montants financiers
 - modification du type des champs `quantite` et `seuil` en un type adapté aux valeurs décimales
 - possibilité d'affichage par type de produits
@@ -173,3 +173,170 @@ Projet réalisé dans le cadre d'un apprentissage Python orienté reconversion p
 
 [Aller à la version française](#gestion-de-stock)
 # Stock management
+Stock management application with a command-line interface (CLI)
+
+## Description
+Simple product stock management application (displays the stock, alerts, and inventory, handles product addition and modification), using a modular architecture (business logic, data management and user interactions are separated) and a JSON file `stock.json` for data storage.
+
+## Project structure
+```
+gestion-stock-python/
+|
+|- images/
+|  |- inventaire.png
+|- main.py
+|- constantes.py
+|- donnees.py
+|- gestion_stock.py
+|- interface.py
+|- types_structure.py
+|- normalisation.py
+|- suggestions_produits.py
+|- README.md
+|- .gitignore
+```
+
+## Data structure
+Data is stored as a list of dictionaries:
+```text
+[
+    {
+        "nom": str,
+        "quantite": int,
+        "seuil": int,
+        "prix": float
+    }
+]
+```
+
+## Technologies used
+- Python 3.10 or later
+- Developed and tested with Python 3.14
+- JSON for permanent data storage and portability
+- HTML/CSS for generating printable versions
+- No external libraries (Python standard library only)
+
+## Features
+- Stock display
+- Alerts display (products with a quantity below threshold only)
+- Add / Update a product with a maximum name length
+- Deletion with confirmation request
+- Case- and accent-insensitive search with suggestions
+- Rename a product while checking that the new name is not already in use
+- Inventory display with the total stock value as of the current date
+- Stock, alerts, and inventory are displayed paginated in alphabetical order, with Unicode normalization
+- Values requiring special attention (zero price, quantity below threshold) are displayed in red
+- Printable HTML files can be generated from the stock, alerts, and inventory views
+
+## Interface previews
+```text
+                    --- ETAT DU STOCK ---                    
+
+-------------------------------------------------------------
+|   n° | produit         |        quantité |  seuil d'alerte |
+-------------------------------------------------------------
+|   11 | fanta           |               3 |               5 |
+|   12 | Fraise Tagada   |               2 |               5 |
+|   13 | jus d'orange    |               0 |               0 |
+|   14 | lait de coco    |               5 |               2 |
+|   15 | noix de coco    |               3 |               1 |
+|   16 | orange          |               3 |               1 |
+|   17 | orange sanguine |               2 |               1 |
+|   18 | orangeade       |               3 |               1 |
+|   19 | orangina        |              30 |               5 |
+|   20 | Pepsi Cola      |              10 |               3 |
+-------------------------------------------------------------
+
+
+
+Page 2/3
+
+[Entrée] : retour au menu principal - [p + Entrée] : précédente  - [s + Entrée] : suivante
+[g + Entrée] : générer une version imprimable
+
+Choix : 
+```
+![Inventaire avec valeurs en rouge](images/inventaire.png)
+
+## Installation
+```bash
+git clone https://github.com/AnnickCang/gestion-stock-python.git
+cd gestion-stock-python
+```
+### Virtual environment creation
+```bash
+python -m venv .venv
+```
+
+### Virtual environment activation by OS
+**Windows**
+```bash
+.\.venv\Scripts\Activate.ps1
+```
+**Mac / Linux**
+```bash
+source .venv/bin/activate
+```
+
+## Launching
+```bash
+python main.py
+```
+
+## Known limitation
+The application loads the contents of the `stock.json` file once at startup and then works with the data stored in memory. 
+This file must not be modified while the application is running. Otherwise, external updates may be overwritten the next time the application saves the data.
+This limitation is accepted for v1.x because the application is intended for local, single-user use.
+Migrating to a SQL database will provide better ways to handle this issue.
+
+
+## Project roadmap
+The project is developed progressively to improve robustness, user experience and code architecture. 
+
+### v1.0 - Functional base
+- product management (add, update, delete)
+- stock, alerts and inventory display
+- data saved in a JSON file
+- initial modular architecture
+
+### v1.1 - Robustness + UX
+- advanced validation and cleaning of the `stock.json` file
+- checking data consistency and handling invalid cases
+- duplicate handling
+- Unicode normalization for comparison and sorting
+- search with suggestions
+- improved user messages
+- navigation improved with quick return to the main menu during user input
+- refactored architecture / separation of responsibilities
+- improved code maintainability
+
+### v1.2 - Display and UX improvements
+- problematic values (e.g., zero price, quantity below threshold) are highlighted in red
+- addition of a first column displaying the row number
+- pagination is added for stock, alerts, and inventory displays (e.g., 10 products per page)
+- display improvements (alignment, spacing, clearer messages)
+- generation of printable files for stock, alerts, and inventory
+- function names reviewed
+- static typing and code robustness improved
+- anomalies are saved to a text file
+- handling of unused keys in the JSON file (these keys are deleted and mentioned in the anomalies file)
+- bilingual version of `README.md`
+- `.gitignore` file comments translated into English
+
+### v2.0 - Migration to Flask (planned)
+- migration from CLI interface to a Flask web interface
+- JSON file will be replaced by a SQL database
+- rename code identifiers into English
+- add `unite` and `type` fields
+- `prix` field updated with a type adapted for financial amounts
+- `quantite` and `seuil` fields updated with a type adapted for decimals
+- option to display products by type
+- displays can be sorted by criteria other than product names
+- autocomplete for product names
+- product name maximum length can be configured
+- configurable maximum number of product suggestions
+- pre-filled fields when updating a product
+- add logging to help diagnose unexpected errors
+
+## Author
+This project was developed as part of my Python learning journey and career transition.
