@@ -1,14 +1,14 @@
-import json
 import errno
+import json
 import os
-from enum import Enum, unique, auto
-from typing import NamedTuple
-from pathlib import Path
 from datetime import datetime
+from enum import Enum, auto, unique
+from pathlib import Path
 from shutil import copy2
+from typing import NamedTuple
 
-import types_structure as ts
 import constantes as const
+import types_structure as ts
 from normalisation import normaliser_chaine_pour_comparaison as norm
 
 
@@ -442,8 +442,7 @@ def creer_rapport_anomalies(
                 )
 
                 f.write(const.TXT_ANOMALIES)
-                for anomalie in produit.anomalies:
-                    f.write("\n\t- " + anomalie)
+                f.writelines("\n\t- " + anomalie for anomalie in produit.anomalies)
 
                 f.write(const.TXT_RESULTAT)
                 if produit.produit_nettoye is None:

@@ -1,6 +1,5 @@
-from typing import TypedDict
-from typing import NamedTuple
 from dataclasses import dataclass
+from typing import NamedTuple, TypedDict
 
 
 class Produit(TypedDict):

@@ -29,9 +29,7 @@ CLE_PRIX = "prix"
 
 # Gestion des erreurs
 ERR_MSG_FICHIER_MAUVAISE_STRUCTURE = (
-    "\nLa structure du fichier de données '{0}' n'est pas adaptée.".format(
-        FICHIER_STOCK
-    )
+    f"\nLa structure du fichier de données '{FICHIER_STOCK}' n'est pas adaptée."
 )
 ERR_MSG_FICHIER_STRUCTURE_LISTE_OBLIGATOIRE = (
     "Les données attendues doivent être une liste de produits."
@@ -41,23 +39,19 @@ ERR_MSG_FICHIER_STOCK_ABSENT = (
     "premier produit."
 )
 ERR_MSG_FICHIER_STOCK_ENDOMMAGE = (
-    "\nImpossible de lire le fichier '{0}' (fichier endommagé).".format(
-        FICHIER_STOCK
-    )
+    f"\nImpossible de lire le fichier '{FICHIER_STOCK}' (fichier endommagé)."
 )
 ERR_MSG_NOUVEAU_FICHIER_STOCK = (
-    "Un nouveau fichier '{0}' sera créé et remplacera l'existant à "
-    "l'ajout du premier produit.".format(
-        FICHIER_STOCK
-    )
+    f"Un nouveau fichier '{FICHIER_STOCK}' sera créé et remplacera l'existant à "
+    "l'ajout du premier produit."
 )
 ERR_MSG_SAUVER_FICHIER_STOCK_ENDOMMAGE = (
-    "Si vous voulez garder votre fichier '{0}', sauvegardez-le "
-    "ailleurs ou renommez-le avant de continuer.".format(FICHIER_STOCK)
+    f"Si vous voulez garder votre fichier '{FICHIER_STOCK}', sauvegardez-le "
+    "ailleurs ou renommez-le avant de continuer."
 )
 ERR_MSG_PERMISSION_REFUSEE = (
-    "Impossible d'accéder au fichier '{0}'. Vérifiez que vous disposez des droits "
-    "nécessaires sur le fichier ou son dossier.".format(FICHIER_STOCK)
+    f"Impossible d'accéder au fichier '{FICHIER_STOCK}'. Vérifiez que vous "
+    "disposez des droits nécessaires sur le fichier ou son dossier."
 )
 ERR_MSG_SAUVEGARDE_ECHOUEE = (
     "La sauvegarde du stock a échoué. La dernière modification n'a pas été prise en compte."
@@ -196,9 +190,7 @@ INFO_RENOMMAGE_STOCK_VIDE = "Le stock est vide : renommage impossible."
 ANO_ENTIER = "int"
 ANO_FLOTTANT = "float"
 ANO_LISTE = (
-    "\nATTENTION : des anomalies existent dans le fichier '{0}'.\n".format(
-        FICHIER_STOCK
-    )
+    f"\nATTENTION : des anomalies existent dans le fichier '{FICHIER_STOCK}'.\n"
 )
 ANO_MSG_INFO_RAPPORT = (
     "Vous trouverez dans le dossier '{0}' une copie de ce fichier ainsi que son "
@@ -206,16 +198,16 @@ ANO_MSG_INFO_RAPPORT = (
 )
 ANO_MSG_ERR_CREATION_RAPPORT = (
     "Une erreur est survenue lors de la création du rapport d'anomalies. "
-    "La sauvegarde de '{0}' et son rapport d'anomalies "
-    "n'ont peut-être pas été effectués.".format(FICHIER_STOCK)
+    f"La sauvegarde de '{FICHIER_STOCK}' et son rapport d'anomalies "
+    "n'ont peut-être pas été effectués."
 )
 ANO_MSG_NOUVEAU_FICHIER_STOCK = (
-    "\nUn nouveau fichier '{0}' remplacera l'existant lors de la prochaine "
-    "modification du stock.".format(FICHIER_STOCK)
+    f"\nUn nouveau fichier '{FICHIER_STOCK}' remplacera l'existant lors de la prochaine "
+    "modification du stock."
 )
 NO_ANO = "Produit OK"
-ANO_NOM_INEXISTANT = "Pas de champ '{0}'.".format(CLE_NOM)
-ANO_NOM_VIDE = "Le champ '{0}' est vide.".format(CLE_NOM)
+ANO_NOM_INEXISTANT = f"Pas de champ '{CLE_NOM}'."
+ANO_NOM_VIDE = f"Le champ '{CLE_NOM}' est vide."
 ANO_NOM_DOUBLON = "Le produit '{0}' existe déjà dans le stock."
 ANO_CHAMP_PAS_STR = (
     "Le champ '{0}' n'est pas une chaîne de caractères."

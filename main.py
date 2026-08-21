@@ -1,12 +1,11 @@
 from copy import deepcopy
 
-import types_structure
 import constantes as const
-import interface as ifc
-import gestion_stock as gs
 import donnees
+import gestion_stock as gs
+import interface as ifc
 import suggestions_produits as sp
-
+import types_structure
 
 LBL_NOM_PRODUIT = const.LBL_NOM_PRODUIT
 CLE_NOM = const.CLE_NOM
@@ -105,11 +104,11 @@ def _gerer_recherche(stock: list[types_structure.Produit]) -> None:
 
         if not stock:
             ifc.afficher_recherche_impossible()
-            return None
+            return
 
         nom_recherche = ifc.demander_nom_produit(LBL_NOM_PRODUIT)
         if nom_recherche is None:
-            return None
+            return
         
         produit = gs.trouver_produit(stock, nom_recherche)
         if produit is not None:

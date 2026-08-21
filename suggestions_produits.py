@@ -1,7 +1,7 @@
 from difflib import get_close_matches
 
-import types_structure
 import constantes as const
+import types_structure
 from normalisation import normaliser_chaine_pour_comparaison as norm
 
 
