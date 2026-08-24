@@ -44,6 +44,10 @@ Les données sont stockées sous forme d'une liste de dictionnaires :
 - HTML/CSS pour la génération d'une version imprimable
 - Aucune dépendance externe (librairie standard Python uniquement)
 
+## Outils de développement
+- Pylance : pour l'autocomplétion et la vérification du typage
+- Ruff 0.16.3 : pour l'analyse statique du code (linting)
+
 ## Fonctionnalités
 - Affichage du stock
 - Affichage des alertes (uniquement des produits dont la quantité est inférieure au seuil)
@@ -151,7 +155,7 @@ Le projet évolue progressivement afin d'améliorer la robustesse, l'expérience
 - version bilingue du fichier `README.md`
 - traduction en anglais des commentaires du fichier `.gitignore`
 
-### v2.0 - Migration vers Flask (à venir)
+### v2.0 - Migration vers Flask (en cours)
 - migration de l'interface CLI vers une interface web avec Flask
 - remplacement du stockage JSON par une base de données SQL
 - renommage en anglais de toutes les appellations dans le code
@@ -215,6 +219,10 @@ Data is stored as a list of dictionaries:
 - JSON for permanent data storage and portability
 - HTML/CSS for generating printable versions
 - No external libraries (Python standard library only)
+
+## Development tools
+- Pylance: for autocompletion and type checking
+- Ruff 0.16.3: for static code analysis (linting)
 
 ## Features
 - Stock display
@@ -323,7 +331,7 @@ The project is developed progressively to improve robustness, user experience an
 - bilingual version of `README.md`
 - `.gitignore` file comments translated into English
 
-### v2.0 - Migration to Flask (planned)
+### v2.0 - Migration to Flask (in progress)
 - migration from CLI interface to a Flask web interface
 - JSON file will be replaced by a SQL database
 - rename code identifiers into English

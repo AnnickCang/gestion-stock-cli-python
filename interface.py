@@ -1,16 +1,15 @@
 import os
 import webbrowser
-from textwrap import dedent
+from datetime import datetime
+from enum import Enum, auto, unique
 from html import escape
 from pathlib import Path
-from datetime import datetime
-from enum import Enum, unique, auto
+from textwrap import dedent
 
-import types_structure
 import constantes as const
-from gestion_stock import verifier_quantite_sous_seuil, verifier_prix_nul
+import types_structure
 from donnees import ResultatChargementFichier, ResultatSauvegardeFichier
-
+from gestion_stock import verifier_prix_nul, verifier_quantite_sous_seuil
 
 CLE_NOM = const.CLE_NOM
 CLE_QUANTITE = const.CLE_QUANTITE

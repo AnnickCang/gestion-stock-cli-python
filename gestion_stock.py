@@ -1,7 +1,6 @@
-import types_structure
 import constantes as const
+import types_structure
 from normalisation import normaliser_chaine_pour_comparaison as norm
-
 
 CLE_NOM = const.CLE_NOM
 CLE_QUANTITE = const.CLE_QUANTITE
@@ -93,13 +92,9 @@ def verifier_nom_disponible(
 
 def verifier_quantite_sous_seuil(produit: types_structure.Produit) -> bool:
     """Renvoie True si la quantité d'un produit est sous le seuil"""
-    if produit[CLE_QUANTITE] < produit[CLE_SEUIL]:
-        return True
-    return False
+    return produit[CLE_QUANTITE] < produit[CLE_SEUIL]
 
 
 def verifier_prix_nul(produit: types_structure.Produit) -> bool:
     """Renvoie True si le prix est nul"""
-    if produit[CLE_PRIX] == 0:
-        return True
-    return False
+    return produit[CLE_PRIX] == 0
