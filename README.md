@@ -156,19 +156,23 @@ Le projet évolue progressivement afin d'améliorer la robustesse, l'expérience
 - traduction en anglais des commentaires du fichier `.gitignore`
 
 ### v2.0 - Migration vers Flask (en cours)
-- migration de l'interface CLI vers une interface web avec Flask
-- remplacement du stockage JSON par une base de données SQL
+Fondations de la v2 :
+- introduction des premiers tests automatisés sur le comportement existant
 - renommage en anglais de toutes les appellations dans le code
-- ajout des champs `unite` et `type`
-- modification du type du champ `prix` en un type adapté aux montants financiers
-- modification du type des champs `quantite` et `seuil` en un type adapté aux valeurs décimales
-- possibilité d'affichage par type de produits
-- possibilité de trier l'affichage autrement que par le nom du produit
-- autocomplétion pour le nom du produit
-- paramétrage de la longueur maximale du champ "nom"
-- possibilité de définir le nombre maximum de produits suggérés lors d'une recherche
-- affichage des valeurs existantes d'un produit lors de sa modification (champs pré-remplis)
 - mise en place d'un système de journalisation pour faciliter le diagnostic des erreurs imprévues
+- modélisation de la base de données, en intégrant notamment :
+    - les champs `unite` et `type`
+    - un type adapté aux montants financiers pour `prix`
+    - un type adapté aux valeurs décimales pour `quantite` et `seuil`
+- migration du stockage JSON vers la base de données SQL
+- migration de l'interface CLI vers une interface web avec Flask
+Fonctions applicatives :
+- affichage par type de produits
+- tri selon d'autres critères que le nom du produit
+- autocomplétion pour le nom du produit
+- paramétrage de la longueur maximale du champ `nom`
+- paramétrage du nombre maximum de produits suggérés lors d'une recherche
+- préremplissage des valeurs existantes lors de la modification d'un produit
 
 ## Auteur
 Projet réalisé dans le cadre d'un apprentissage Python orienté reconversion professionnelle.
@@ -332,19 +336,23 @@ The project is developed progressively to improve robustness, user experience an
 - `.gitignore` file comments translated into English
 
 ### v2.0 - Migration to Flask (in progress)
-- migration from CLI interface to a Flask web interface
-- JSON file will be replaced by a SQL database
-- rename code identifiers into English
-- add `unite` and `type` fields
-- `prix` field updated with a type adapted for financial amounts
-- `quantite` and `seuil` fields updated with a type adapted for decimals
-- option to display products by type
-- displays can be sorted by criteria other than product names
+v2 foundations:
+- introduce initial automated tests for existing behavior
+- rename all code identifiers into English
+- add logging to help diagnose unexpected errors
+- design the database schema, including:
+    - `unite` and `type` fields
+    - a data type suitable for financial amounts for `prix`
+    - a data type suitable for decimals values for `quantite` and `seuil`
+- migrate from JSON file storage to a SQL database
+- migrate from a CLI to a Flask web interface
+Application features:
+- display products by type
+- sort products by criteria other than name
 - autocomplete for product names
-- product name maximum length can be configured
+- configurable maximum length for product name
 - configurable maximum number of product suggestions
 - pre-filled fields when updating a product
-- add logging to help diagnose unexpected errors
 
 ## Author
 This project was developed as part of my Python learning journey and career transition.
