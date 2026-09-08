@@ -12,16 +12,21 @@ gestion-stock-python/
 |
 |- images/
 |  |- inventaire.png
+|- tests/
+|
 |- main.py
 |- constantes.py
 |- donnees.py
 |- gestion_stock.py
 |- interface.py
-|- types_structure.py
 |- normalisation.py
 |- suggestions_produits.py
-|- README.md
+|- types_structure.py
+|
 |- .gitignore
+|- pyproject.toml
+|- requirements-dev.txt
+|- README.md
 ```
 
 ## Format des données
@@ -46,7 +51,6 @@ Les données sont stockées sous forme d'une liste de dictionnaires :
 
 ## Outils de développement
 - Pylance : pour l'autocomplétion et la vérification du typage
-- Ruff 0.16.3 : pour l'analyse statique du code (linting)
 
 ## Fonctionnalités
 - Affichage du stock
@@ -108,6 +112,11 @@ python -m venv .venv
 **Mac / Linux**
 ```bash
 source .venv/bin/activate
+```
+
+### Installation des dépendances de développement
+```bash
+pip install -r requirements-dev.txt
 ```
 
 ## Lancement
@@ -192,16 +201,21 @@ gestion-stock-python/
 |
 |- images/
 |  |- inventaire.png
+|- tests/
+|
 |- main.py
 |- constantes.py
 |- donnees.py
 |- gestion_stock.py
 |- interface.py
-|- types_structure.py
 |- normalisation.py
 |- suggestions_produits.py
-|- README.md
+|- types_structure.py
+|
 |- .gitignore
+|- pyproject.toml
+|- requirements-dev.txt
+|- README.md
 ```
 
 ## Data structure
@@ -226,7 +240,6 @@ Data is stored as a list of dictionaries:
 
 ## Development tools
 - Pylance: for autocompletion and type checking
-- Ruff 0.16.3: for static code analysis (linting)
 
 ## Features
 - Stock display
@@ -288,6 +301,11 @@ python -m venv .venv
 **Mac / Linux**
 ```bash
 source .venv/bin/activate
+```
+
+### Installing development dependencies
+```bash
+pip install -r requirements-dev.txt
 ```
 
 ## Launching

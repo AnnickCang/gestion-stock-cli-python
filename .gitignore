@@ -6,6 +6,7 @@
 
 # Development tools cache
 .ruff_cache/
+.pytest_cache/
 
 # Compiled Python files
 __pycache__/
